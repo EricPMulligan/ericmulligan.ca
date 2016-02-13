@@ -1,0 +1,30 @@
+<nav class="navbar navbar-inverse">
+  <div class="container">
+    <div class="navbar-header">
+      <button class="navbar-toggle collapsed" type="button" data-toggle="collapse" data-target="#nav" aria-expanded="true">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <%= link_to 'EricMulligan.ca', root_path, class: 'navbar-brand' %>
+    </div>
+
+    <div class="collapse navbar-collapse" id="nav">
+      <ul class="nav navbar-nav navbar-right">
+        <li class="<%= current_page?(controller: '/categories', action: 'coding') ? 'active' : '' %>"><%= link_to 'Coding', coding_path %></li>
+        <li class="<%= current_page?(controller: '/categories', action: 'music') ? 'active' : '' %>"><%= link_to 'Music', music_path %></li>
+        <li class="<%= current_page?(controller: '/categories', action: 'other') ? 'active' : '' %>"><%= link_to 'Other', other_path %></li>
+        <li class="<%= current_page?(controller: '/static_pages', action: 'about') ? 'active' : '' %>"><%= link_to 'About Me', about_path %></li>
+        <li class="<%= current_page?(controller: '/contact', action: 'index') ? 'active' : '' %>"><%= link_to 'Contact Me', contact_path %></li>
+        <li class="<%= current_page?(controller: 'clearance/sessions', action: 'new') ? 'active' : '' %>">
+          <% if signed_in? -%>
+            <%= link_to t('.sign_out'), sign_out_path, method: :delete %>
+          <% else -%>
+            <%= link_to t('.sign_in'), sign_in_path %>
+          <% end -%>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
