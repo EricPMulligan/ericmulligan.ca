@@ -263,7 +263,7 @@ describe PostsController do
             end
 
             it { should respond_with :redirect }
-            it { should redirect_to show_post_path(assigns(:post).slug) }
+            it { should redirect_to edit_post_path(assigns(:post).slug) }
             it { should set_flash[:notice].to('Your post has been published.') }
           end
         end
@@ -275,7 +275,7 @@ describe PostsController do
           end
 
           it { should respond_with :redirect }
-          it { should redirect_to show_post_path(assigns(:post).slug) }
+          it { should redirect_to edit_post_path(assigns(:post).slug) }
           it { should set_flash[:notice].to('Your post has been published.') }
         end
       end
@@ -315,7 +315,7 @@ describe PostsController do
             end
 
             it { should respond_with :redirect }
-            it { should redirect_to show_post_path(assigns(:post).slug) }
+            it { should redirect_to edit_post_path(assigns(:post).slug) }
             it { should set_flash[:notice].to('Your post has been saved.') }
           end
         end
@@ -327,20 +327,228 @@ describe PostsController do
           end
 
           it { should respond_with :redirect }
-          it { should redirect_to show_post_path(assigns(:post).slug) }
+          it { should redirect_to edit_post_path(assigns(:post).slug) }
           it { should set_flash[:notice].to('Your post has been saved.') }
         end
       end
     end
+
+    describe 'when the user is not signed in' do
+      before(:each) do
+        post :create, post: { title: Faker::Lorem.sentence, body: Faker::Lorem.paragraph }, commit: 'Publish'
+      end
+
+      it { should respond_with :redirect }
+      it { should redirect_to sign_in_path }
+      it { should set_flash[:notice].to('Please sign in to continue.') }
+    end
   end
 
-  describe 'when the user is not signed in' do
-    before(:each) do
-      post :create, post: { title: Faker::Lorem.sentence, body: Faker::Lorem.paragraph }, commit: 'Publish'
+  describe 'GET #edit' do
+    context 'when the user is signed in' do
+      before(:each) { sign_in_as create(:user) }
+
+      context 'when the post exists' do
+        context 'when the user is the author of the post' do
+          context 'when the post is published' do
+            before(:each) do
+              @post = create(:post, published: true, created_by: @controller.current_user)
+              get :edit, slug: @post.slug
+            end
+
+            it { should respond_with :ok }
+            it { should render_template :edit }
+            it { should render_with_layout :application }
+            it { expect(assigns(:post)).to eq(@post) }
+          end
+
+          context 'when the post has not yet been published' do
+            before(:each) do
+              @post = create(:post, published: false, created_by: @controller.current_user)
+              get :edit, slug: @post.slug
+            end
+
+            it { should respond_with :ok }
+            it { should render_template :edit }
+            it { should render_with_layout :application }
+            it { expect(assigns(:post)).to eq(@post) }
+          end
+
+          context 'when the user is not the author of the post' do
+            before(:each) do
+              post = create(:post, published: false)
+              get :edit, slug: post.slug
+            end
+
+            it { should respond_with :redirect }
+            it { should redirect_to root_path }
+            it { should set_flash[:alert].to('You are not the author of the unpublished post.') }
+          end
+        end
+      end
+
+      context 'when the post does not exist' do
+        before(:each) { get :edit, slug: 'blah' }
+
+        it { should respond_with :redirect }
+        it { should redirect_to root_path }
+        it { should set_flash[:alert].to('The post you are looking for does not exist.') }
+      end
     end
 
-    it { should respond_with :redirect }
-    it { should redirect_to sign_in_path }
-    it { should set_flash[:notice].to('Please sign in to continue.') }
+    context 'when the user is not signed in' do
+      before(:each) do
+        post = create(:post, published: false)
+        get :edit, slug: post.slug
+      end
+
+      it { should respond_with :redirect }
+      it { should redirect_to sign_in_path }
+      it { should set_flash[:notice].to 'Please sign in to continue.' }
+    end
+  end
+
+  describe 'PATCH #update' do
+    context 'when the user is signed in' do
+      before(:each) { sign_in_as create(:user) }
+
+      context 'when the post exists' do
+        context 'when the user is the author of the post' do
+          context 'when the user attempts to publish the post' do
+            context 'when not entering the title' do
+              before(:each) do
+                post = create(:post, created_by: @controller.current_user)
+                post.title = ''
+                patch :update, post: { title: post.title, body: post.body }, commit: 'Publish', slug: post.slug
+              end
+
+              it { should respond_with :ok }
+              it { should render_template :edit }
+              it { should render_with_layout :application }
+              it { should set_flash.now[:alert].to("Title can't be blank") }
+            end
+
+            context 'when entering the same title as another post' do
+              context 'on the same day' do
+                before(:each) do
+                  other_post = create(:post)
+                  post = create(:post, created_by: @controller.current_user)
+                  patch :update, post: { title: other_post.title, body: post.body }, commit: 'Publish', slug: post.slug
+                end
+
+                it { should respond_with :ok }
+                it { should render_template :edit }
+                it { should render_with_layout :application }
+                it { should set_flash.now[:alert].to('The title of two posts cannot be identical on the same day.') }
+              end
+
+              context 'not on the same day' do
+                before(:each) do
+                  other_post = create(:post, created_at: Faker::Date.between(2.years.ago, Date.yesterday))
+                  post = create(:post, created_by: @controller.current_user)
+                  patch :update, post: { title: other_post.title, body: post.body }, commit: 'Publish', slug: post.slug
+                end
+
+                it { should respond_with :redirect }
+                it { should redirect_to show_post_path(assigns(:post).slug) }
+                it { should set_flash[:notice].to('Your post has been published.') }
+              end
+            end
+
+            context 'when entering a unique title' do
+              before(:each) do
+                post = create(:post, created_by: @controller.current_user)
+                patch :update, post: { title: Faker::Lorem.sentence, body: post.body }, commit: 'Publish', slug: post.slug
+              end
+
+              it { should respond_with :redirect }
+              it { should redirect_to show_post_path(assigns(:post).slug) }
+              it { should set_flash[:notice].to('Your post has been published.') }
+            end
+          end
+        end
+
+        context 'when the user attempts to save the post' do
+          context 'when not entering the title' do
+            before(:each) do
+              post = create(:post, created_by: @controller.current_user)
+              post.title = ''
+              patch :update, post: { title: post.title, body: post.body }, commit: 'Save', slug: post.slug
+            end
+
+            it { should respond_with :ok }
+            it { should render_template :edit }
+            it { should render_with_layout :application }
+            it { should set_flash.now[:alert].to("Title can't be blank") }
+          end
+
+          context 'when entering the same title as another post' do
+            context 'on the same day' do
+              before(:each) do
+                other_post = create(:post)
+                post = create(:post, created_by: @controller.current_user)
+                patch :update, post: { title: other_post.title, body: post.body }, commit: 'Save', slug: post.slug
+              end
+
+              it { should respond_with :ok }
+              it { should render_template :edit }
+              it { should render_with_layout :application }
+              it { should set_flash.now[:alert].to('The title of two posts cannot be identical on the same day.') }
+            end
+
+            context 'not on the same day' do
+              before(:each) do
+                other_post = create(:post, created_at: Faker::Date.between(2.years.ago, Date.yesterday))
+                post = create(:post, created_by: @controller.current_user)
+                patch :update, post: { title: other_post.title, body: post.body }, commit: 'Save', slug: post.slug
+              end
+
+              it { should respond_with :redirect }
+              it { should redirect_to show_post_path(assigns(:post).slug) }
+              it { should set_flash[:notice].to('Your post has been saved.') }
+            end
+          end
+
+          context 'when entering a unique title' do
+            before(:each) do
+              post = create(:post, created_by: @controller.current_user)
+              patch :update, post: { title: Faker::Lorem.sentence, body: post.body }, commit: 'Save', slug: post.slug
+            end
+
+            it { should respond_with :redirect }
+            it { should redirect_to show_post_path(assigns(:post).slug) }
+            it { should set_flash[:notice].to('Your post has been saved.') }
+          end
+        end
+
+        context 'when the user is not the author of the post' do
+          before(:each) { patch :update, slug: create(:post).slug }
+
+          it { should respond_with :redirect }
+          it { should redirect_to root_path }
+          it { should set_flash[:alert].to('You are not the author of the post.') }
+        end
+      end
+
+      context 'when the post does not exist' do
+        before(:each) { patch :update, slug: 'blah' }
+
+        it { should respond_with :redirect }
+        it { should redirect_to root_path }
+        it { should set_flash[:alert].to('The post you are attempting to update does not exist.') }
+      end
+
+    end
+
+    context 'when the user is not signed in' do
+      before(:each) do
+        post = create(:post, published: false)
+        patch :update, slug: post.slug
+      end
+
+      it { should respond_with :redirect }
+      it { should redirect_to sign_in_path }
+      it { should set_flash[:notice].to 'Please sign in to continue.' }
+    end
   end
 end
