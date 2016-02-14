@@ -1,6 +1,6 @@
 class PostsController < ApplicationController
-  before_action :require_login, only: [:new, :create, :edit, :update]
-  before_action :find_post, only: [:show, :edit, :update]
+  before_action :require_login, only: [:new, :create, :edit, :update, :destroy]
+  before_action :find_post,     only: [:show, :edit, :update, :destroy]
 
   rescue_from ActiveRecord::RecordNotFound, with: :record_not_found
   rescue_from SQLite3::ConstraintException, with: :constraint
@@ -69,6 +69,17 @@ class PostsController < ApplicationController
     else
       flash.now[:alert] = @post.errors.full_messages.join('<br />')
       render :edit
+    end
+  end
+
+  # Delete /:slug
+  def destroy
+    return redirect_to :back, alert: 'You are not the author of the post.' unless @post.created_by == current_user
+
+    if @post.destroy
+      redirect_to root_path, notice: 'Your post has been deleted.'
+    else
+      redirect_to root_path, alert: @post.errors.full_messages.join('<br />')
     end
   end
 
