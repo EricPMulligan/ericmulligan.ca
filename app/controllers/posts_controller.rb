@@ -1,5 +1,5 @@
 class PostsController < ApplicationController
-  before_action :require_login, only: [:new, :create]
+  before_action :require_login, only: [:new, :create, :edit, :update]
 
   rescue_from ActiveRecord::RecordNotFound, with: :record_not_found
   rescue_from SQLite3::ConstraintException, with: :constraint
@@ -11,15 +11,6 @@ class PostsController < ApplicationController
       @posts = Post.published.union(Post.where(created_by: current_user, published: false)).latest.paginate(page: params[:page], per_page: 10)
     else
       @posts = Post.latest.published.paginate(page: params[:page], per_page: 10)
-    end
-  end
-
-  # GET /:slug
-  def show
-    @post = Post.find_by!(slug: params[:slug])
-    unless @post.published?
-      return redirect_to root_path, alert: 'You must be signed in to view the unpublished post.' unless signed_in?
-      redirect_to root_path, alert: 'You are not the author of the unpublished post.'            unless @post.created_by == current_user
     end
   end
 
@@ -49,6 +40,28 @@ class PostsController < ApplicationController
     end
   end
 
+  # GET /:slug
+  def show
+    @post = Post.find_by!(slug: params[:slug])
+    unless @post.published?
+      return redirect_to root_path, alert: 'You must be signed in to view the unpublished post.' unless signed_in?
+      redirect_to root_path, alert: 'You are not the author of the unpublished post.'            unless @post.created_by == current_user
+    end
+  end
+
+  # GET /:slug/edit
+  def edit
+    @post = Post.find_by!(slug: params[:slug])
+    redirect_to root_path, alert: 'You are not the author of the unpublished post.' unless @post.created_by == current_user
+  end
+
+  # PUT /:slug
+  # PATCH /:slug
+  def update
+    @post = Post.find_by!(slug: params[:slug])
+    return redirect_to root_path, alert: 'You are not the author of the post.' unless @post.created_by == current_user
+  end
+
   private
 
   def constraint
@@ -57,7 +70,15 @@ class PostsController < ApplicationController
   end
 
   def record_not_found
-    redirect_to root_path, alert: 'The post you are looking for does not exist.'
+    message = case params[:action]
+                when 'show'
+                  'The post you are looking for does not exist.'
+                when 'edit'
+                  'The post you are looking for does not exist.'
+                when 'update'
+                  'The post you are attempting to update does not exist.'
+              end
+    redirect_to root_path, alert: message
   end
 
   def post_params

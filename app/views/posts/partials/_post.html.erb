@@ -14,7 +14,7 @@
   <footer>
     <p>Post created by <%= post.created_by.email %> <%= time_ago_in_words(post.created_at) %>.</p>
     <%- if signed_in? && current_user == post.created_by %>
-      <p><%= link_to 'Edit', edit_post_path(post) %> | <%= link_to 'Delete', show_post_path(post), method: :delete %></p>
+      <p><%= link_to 'Edit', edit_post_path(post.slug) %> | <%= link_to 'Delete', show_post_path(post), method: :delete %></p>
     <%- end %>
   </footer>
 </article>

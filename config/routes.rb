@@ -24,4 +24,5 @@ Rails.application.routes.draw do
   get ':slug'      => 'posts#show',   as: :show_post
   get ':slug/edit' => 'posts#edit',   as: :edit_post
   post ''          => 'posts#create', as: :posts
+  match ':slug'    => 'posts#update', via: [:put, :patch]
 end
