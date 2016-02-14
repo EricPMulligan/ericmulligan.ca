@@ -1,5 +1,6 @@
 class PostsController < ApplicationController
   before_action :require_login, only: [:new, :create, :edit, :update]
+  before_action :find_post, only: [:show, :edit, :update]
 
   rescue_from ActiveRecord::RecordNotFound, with: :record_not_found
   rescue_from SQLite3::ConstraintException, with: :constraint
@@ -21,9 +22,9 @@ class PostsController < ApplicationController
 
   # POST /
   def create
-    @post = Post.new(post_params)
+    @post            = Post.new(post_params)
     @post.created_by = current_user
-    @post.published = true if params[:commit] == 'Publish'
+    @post.published  = true if params[:commit] == 'Publish'
 
     if @post.save
       message = case params[:commit]
@@ -32,17 +33,15 @@ class PostsController < ApplicationController
                   when 'Save'
                     'Your post has been saved.'
                 end
-      redirect_to show_post_path(@post.slug), notice: message
+      redirect_to edit_post_path(@post.slug), notice: message
     else
-      message = @post.errors.full_messages.join('<br />')
-      flash.now[:alert] = message
+      flash.now[:alert] = @post.errors.full_messages.join('<br />')
       render :new
     end
   end
 
   # GET /:slug
   def show
-    @post = Post.find_by!(slug: params[:slug])
     unless @post.published?
       return redirect_to root_path, alert: 'You must be signed in to view the unpublished post.' unless signed_in?
       redirect_to root_path, alert: 'You are not the author of the unpublished post.'            unless @post.created_by == current_user
@@ -51,22 +50,43 @@ class PostsController < ApplicationController
 
   # GET /:slug/edit
   def edit
-    @post = Post.find_by!(slug: params[:slug])
     redirect_to root_path, alert: 'You are not the author of the unpublished post.' unless @post.created_by == current_user
   end
 
   # PUT /:slug
   # PATCH /:slug
   def update
-    @post = Post.find_by!(slug: params[:slug])
     return redirect_to root_path, alert: 'You are not the author of the post.' unless @post.created_by == current_user
+
+    if @post.update(post_params)
+      message = case params[:commit]
+                  when 'Publish'
+                    'Your post has been published.'
+                  when 'Save'
+                    'Your post has been saved.'
+                end
+      redirect_to show_post_path(@post.slug), notice: message
+    else
+      flash.now[:alert] = @post.errors.full_messages.join('<br />')
+      render :edit
+    end
   end
 
   private
 
   def constraint
     flash.now[:alert] = 'The title of two posts cannot be identical on the same day.'
-    render :new
+    template = case params[:action]
+                 when 'create'
+                   :new
+                 when 'update'
+                   :edit
+               end
+    render template
+  end
+
+  def find_post
+    @post = Post.find_by!(slug: params[:slug])
   end
 
   def record_not_found
