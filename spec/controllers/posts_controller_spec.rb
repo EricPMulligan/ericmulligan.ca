@@ -551,4 +551,44 @@ describe PostsController do
       it { should set_flash[:notice].to 'Please sign in to continue.' }
     end
   end
+
+  describe 'DELETE #destroy' do
+    context 'when the user is signed in' do
+      before(:each) { sign_in_as create(:user) }
+
+      context 'when the user is the author of the post' do
+        before(:each) do
+          post = create(:post, created_by: @controller.current_user)
+          delete :destroy, slug: post.slug
+        end
+
+        it { should respond_with :redirect }
+        it { should redirect_to root_path }
+        it { should set_flash[:notice].to('Your post has been deleted.') }
+      end
+
+      context 'when the user is not the author of the post' do
+        before(:each) do
+          request.env['HTTP_REFERER'] = root_path
+          post = create(:post)
+          delete :destroy, slug: post.slug
+        end
+
+        it { should respond_with :redirect }
+        it { should redirect_to root_path }
+        it { should set_flash[:alert].to('You are not the author of the post.') }
+      end
+    end
+
+    context 'when the user is not signed in' do
+      before(:each) do
+        post = create(:post, published: false)
+        delete :destroy, slug: post.slug
+      end
+
+      it { should respond_with :redirect }
+      it { should redirect_to sign_in_path }
+      it { should set_flash[:notice].to 'Please sign in to continue.' }
+    end
+  end
 end
