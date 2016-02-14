@@ -17,6 +17,7 @@
         <li class="<%= current_page?(controller: '/categories', action: 'other') ? 'active' : '' %>"><%= link_to 'Other', other_path %></li>
         <li class="<%= current_page?(controller: '/static_pages', action: 'about') ? 'active' : '' %>"><%= link_to 'About Me', about_path %></li>
         <li class="<%= current_page?(controller: '/contact', action: 'index') ? 'active' : '' %>"><%= link_to 'Contact Me', contact_path %></li>
+        <li class="<%= current_page?(controller: '/posts', action: 'new') ? 'active' : '' %>"><%= link_to 'New Post', new_post_path %></li>
         <li class="<%= current_page?(controller: 'clearance/sessions', action: 'new') ? 'active' : '' %>">
           <% if signed_in? -%>
             <%= link_to t('.sign_out'), sign_out_path, method: :delete %>

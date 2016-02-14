@@ -12,6 +12,6 @@ class Post < ActiveRecord::Base
   private
 
   def update_slug_if_title_changed
-    self.slug = title.parameterize if title_changed?
+    self.slug = "#{self.created_at.present? ? self.created_at.to_date.to_s : DateTime.now.to_date.to_s}-#{title.parameterize}" if title_changed?
   end
 end

@@ -20,6 +20,8 @@ Rails.application.routes.draw do
 
   root to: 'posts#index'
 
-  get ':slug'      => 'posts#show', as: :show_post
-  get ':slug/edit' => 'posts#edit', as: :edit_post
+  get 'new'        => 'posts#new',    as: :new_post
+  get ':slug'      => 'posts#show',   as: :show_post
+  get ':slug/edit' => 'posts#edit',   as: :edit_post
+  post ''          => 'posts#create', as: :posts
 end
