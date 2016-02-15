@@ -17,13 +17,12 @@
         <li class="<%= current_page?(controller: '/categories', action: 'other') ? 'active' : '' %>"><%= link_to 'Other', other_path %></li>
         <li class="<%= current_page?(controller: '/static_pages', action: 'about') ? 'active' : '' %>"><%= link_to 'About Me', about_path %></li>
         <li class="<%= current_page?(controller: '/contact', action: 'index') ? 'active' : '' %>"><%= link_to 'Contact Me', contact_path %></li>
-        <li class="<%= current_page?(controller: '/posts', action: 'new') ? 'active' : '' %>"><%= link_to 'New Post', new_post_path %></li>
-        <li class="<%= current_page?(controller: 'clearance/sessions', action: 'new') ? 'active' : '' %>">
-          <% if signed_in? -%>
-            <%= link_to t('.sign_out'), sign_out_path, method: :delete, id: 'sign-out-lnk' %>
-          <% else -%>
-            <%= link_to t('.sign_in'), sign_in_path %>
-          <% end -%>
+        <% if signed_in? -%>
+          <li class="<%= current_page?(controller: '/posts', action: 'new') ? 'active' : '' %>"><%= link_to 'New Post', new_post_path %></li>
+          <li><%= link_to t('.sign_out'), sign_out_path, method: :delete, id: 'sign-out-lnk' %></li>
+        <% else -%>
+          <li class="<%= current_page?(controller: 'clearance/sessions', action: 'new') ? 'active' : '' %>"><%= link_to t('.sign_in'), sign_in_path %></li>
+        <% end -%>
         </li>
       </ul>
     </div>

@@ -20,6 +20,8 @@ Rails.application.routes.draw do
 
   root to: 'posts#index'
 
+  resources :categories
+
   get 'new'        => 'posts#new',     as: :new_post
   get ':slug'      => 'posts#show',    as: :show_post
   get ':slug/edit' => 'posts#edit',    as: :edit_post

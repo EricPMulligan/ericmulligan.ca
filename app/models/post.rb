@@ -6,6 +6,8 @@ class Post < ActiveRecord::Base
 
   belongs_to :created_by, class_name: 'User'
 
+  has_and_belongs_to_many :categories, class_name: 'Category'
+
   validates :created_by, presence: true
   validates :title,      presence: true
 
