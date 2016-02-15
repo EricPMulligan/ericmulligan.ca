@@ -107,6 +107,50 @@ describe CategoriesController do
     end
   end
 
+  describe 'GET #show' do
+    context 'when the user is signed in' do
+      before(:each) { sign_in_as create(:user) }
+
+      context 'when the category exists' do
+        context 'when the user is the creator of the category' do
+          before(:each) do
+            @category = create(:category, created_by: @controller.current_user)
+            get :show, id: @category.id
+          end
+
+          it { should respond_with :ok }
+          it { should render_template :show }
+          it { should render_with_layout :application }
+          it { expect(assigns(:category)).to eq(@category) }
+        end
+
+        context 'when the user is not the creator of the category' do
+          before(:each) { get :show, id: create(:category).id }
+
+          it { should respond_with :redirect }
+          it { should redirect_to categories_path }
+          it { should set_flash[:alert].to('You are not the creator of the category.') }
+        end
+      end
+
+      context 'when the category does not exist' do
+        before(:each) { get :show, id: 9898398 }
+
+        it { should respond_with :redirect }
+        it { should redirect_to categories_path }
+        it { should set_flash[:alert].to('The category you are looking for does not exist.') }
+      end
+    end
+
+    context 'when the user is not signed in' do
+      before(:each) { get :show, id: create(:category) }
+
+      it { should respond_with :redirect }
+      it { should redirect_to sign_in_path }
+      it { should set_flash[:notice].to('Please sign in to continue.') }
+    end
+  end
+
   describe 'GET #edit' do
     context 'when the user is signed in' do
       before(:each) { sign_in_as create(:user) }
@@ -156,30 +200,43 @@ describe CategoriesController do
       before(:each) { sign_in_as create(:user) }
 
       context 'when the category exists' do
-        context 'setting the name to blank' do
-          before(:each) do
-            @category              = create(:category, created_by: @controller.current_user)
-            category_params        = @category.attributes
-            category_params[:name] = ''
-            patch :update, category: category_params, id: @category.id
+        context 'when the user is the creator of the category' do
+          context 'setting the name to blank' do
+            before(:each) do
+              @category              = create(:category, created_by: @controller.current_user)
+              category_params        = @category.attributes
+              category_params[:name] = ''
+              patch :update, category: category_params, id: @category.id
+            end
+
+            it { should respond_with :ok }
+            it { should render_template :edit }
+            it { should render_with_layout :application }
+            it { expect(assigns(:category)).to eq(@category) }
           end
 
-          it { should respond_with :ok }
-          it { should render_template :edit }
-          it { should render_with_layout :application }
-          it { expect(assigns(:category)).to eq(@category) }
+          context 'setting the name' do
+            before(:each) do
+              @category = create(:category, created_by: @controller.current_user)
+              @category.name = Faker::Lorem.sentence
+              patch :update, category: @category.attributes, id: @category.id
+            end
+
+            it { should respond_with :redirect }
+            it { should redirect_to edit_category_path(@category) }
+            it { should set_flash[:notice].to('Your category has been updated.') }
+          end
         end
 
-        context 'setting the name' do
+        context 'when the user is not the creator of the category' do
           before(:each) do
-            @category = create(:category, created_by: @controller.current_user)
-            @category.name = Faker::Lorem.sentence
-            patch :update, category: @category.attributes, id: @category.id
+            category = create(:category)
+            patch :update, category: category.attributes, id: category.id
           end
 
           it { should respond_with :redirect }
-          it { should redirect_to edit_category_path(@category) }
-          it { should set_flash[:notice].to('Your category has been updated.') }
+          it { should redirect_to categories_path }
+          it { should set_flash[:alert].to('You are not the creator of the category.') }
         end
       end
 
@@ -205,6 +262,45 @@ describe CategoriesController do
   end
 
   describe 'DELETE #destroy' do
+    context 'when the user is signed in' do
+      before(:each) { sign_in_as create(:user) }
 
+      context 'when the category exists' do
+        context 'when the user is the creator of the category' do
+          before(:each) do
+            category = create(:category, created_by: @controller.current_user)
+            delete :destroy, id: category.id
+          end
+
+          it { should respond_with :redirect }
+          it { should redirect_to categories_path }
+          it { should set_flash[:notice].to('The category has been deleted.') }
+        end
+
+        context 'when the user is not the creator of the category' do
+          before(:each) { delete :destroy, id: create(:category).id }
+
+          it { should respond_with :redirect }
+          it { should redirect_to categories_path }
+          it { should set_flash[:alert].to('You are not the creator of the category.') }
+        end
+      end
+
+      context 'when the category does not exist' do
+        before(:each) { delete :destroy, id: 9898398983 }
+
+        it { should respond_with :redirect }
+        it { should redirect_to categories_path }
+        it { should set_flash[:alert].to('The category you are looking for does not exist.') }
+      end
+    end
+
+    context 'when the user is not signed in' do
+      before(:each) { delete :destroy, id: create(:category).id }
+
+      it { should respond_with :redirect }
+      it { should redirect_to sign_in_path }
+      it { should set_flash[:notice].to('Please sign in to continue.') }
+    end
   end
 end

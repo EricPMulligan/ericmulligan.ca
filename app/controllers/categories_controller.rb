@@ -1,6 +1,7 @@
 class CategoriesController < ApplicationController
   before_action :require_login
-  before_action :find_category, only: [:show, :edit, :update, :destroy]
+  before_action :find_category,   only: [:show, :edit, :update, :destroy]
+  before_action :check_ownership, only: [:show, :edit, :update, :destroy]
 
   rescue_from ActiveRecord::RecordNotFound, with: :record_not_found
 
@@ -34,14 +35,11 @@ class CategoriesController < ApplicationController
 
   # GET /categories/:id/edit
   def edit
-    redirect_to categories_path, alert: 'You are not the creator of the category.' unless @category.created_by == current_user
   end
 
   # PUT /categories/:id
   # PATCH /categories/:id
   def update
-    return redirect_to categories_path, alert: 'You are not the creator of the category.' unless @category.created_by == current_user
-
     if @category.update(category_params)
       redirect_to edit_category_path(@category), notice: 'Your category has been updated.'
     else
@@ -52,7 +50,11 @@ class CategoriesController < ApplicationController
 
   # DELETE /categories/:id
   def destroy
-
+    if @category.destroy
+      redirect_to categories_path, notice: 'The category has been deleted.'
+    else
+      redirect_to categories_path, alert: 'There was a problem when attempting to delete the category.'
+    end
   end
 
   # GET /coding
@@ -74,6 +76,10 @@ class CategoriesController < ApplicationController
       :name,
       :description
     )
+  end
+
+  def check_ownership
+    redirect_to categories_path, alert: 'You are not the creator of the category.' unless @category.created_by == current_user
   end
 
   def find_category

@@ -1,10 +1,10 @@
 <article id="post-<%= post.id %>">
   <header>
     <h2>
-      <%- if current_page?(controller: 'posts', action: 'index') %>
-        <%= link_to "#{post.title}#{' (Unpublished)' unless post.published?}", show_post_path(post.slug) %>
-      <%- else %>
+      <%- if current_page?(controller: 'posts', action: 'show') %>
         <%= post.title %><%= ' (Unpublished)' unless post.published? %>
+      <%- else %>
+        <%= link_to "#{post.title}#{' (Unpublished)' unless post.published?}", show_post_path(post.slug) %>
       <%- end %>
     </h2>
   </header>

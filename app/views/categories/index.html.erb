@@ -1,10 +1,16 @@
 <section class="categories">
-  <%- @categories.each do |category| %>
-    <div class="category">
-      <h2><%= link_to category.name, category_path(category) %></h2>
-      <p><%= category.posts.count %> post(s)</p>
-    </div>
-  <%- end %>
+  <header>
+    <h2>Categories</h2>
+  </header>
+  <content>
+    <%- @categories.each do |category| %>
+      <div class="category">
+        <h2><%= link_to category.name, category_path(category) %></h2>
+        <p><%= category.posts.count %> post(s)</p>
+        <div><%= link_to 'Edit', edit_category_path(category), id: "edit-category-#{category.id}-lnk" %> | <%= link_to 'Delete', category_path(category), method: :delete, id: "delete-category-#{category.id}-lnk" %></div>
+      </div>
+    <%- end %>
 
-  <%= will_paginate @categories, renderer: BootstrapPagination::Rails %>
+    <%= will_paginate @categories, renderer: BootstrapPagination::Rails %>
+  </content>
 </section>
