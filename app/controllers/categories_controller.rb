@@ -34,13 +34,20 @@ class CategoriesController < ApplicationController
 
   # GET /categories/:id/edit
   def edit
-
+    redirect_to categories_path, alert: 'You are not the creator of the category.' unless @category.created_by == current_user
   end
 
   # PUT /categories/:id
   # PATCH /categories/:id
   def update
+    return redirect_to categories_path, alert: 'You are not the creator of the category.' unless @category.created_by == current_user
 
+    if @category.update(category_params)
+      redirect_to edit_category_path(@category), notice: 'Your category has been updated.'
+    else
+      flash.now[:alert] = @category.errors.full_messages.join('<br />')
+      render :edit
+    end
   end
 
   # DELETE /categories/:id
