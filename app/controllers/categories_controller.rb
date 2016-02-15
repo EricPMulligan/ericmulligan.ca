@@ -11,12 +11,20 @@ class CategoriesController < ApplicationController
 
   # GET /categories/new
   def new
-
+    @category = Category.new
   end
 
   # POST /categories
   def create
+    @category            = Category.new(category_params)
+    @category.created_by = current_user
 
+    if @category.save
+      redirect_to edit_category_path(@category), notice: 'Your category has been created.'
+    else
+      flash.now[:alert] = @category.errors.full_messages.join('<br />')
+      render :new
+    end
   end
 
   # GET /categories/:id
@@ -53,6 +61,13 @@ class CategoriesController < ApplicationController
   end
 
   private
+
+  def category_params
+    params.require(:category).permit(
+      :name,
+      :description
+    )
+  end
 
   def find_category
     @category = Category.find(params[:id])

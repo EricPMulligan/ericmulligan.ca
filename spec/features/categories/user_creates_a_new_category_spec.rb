@@ -8,6 +8,6 @@ feature 'User creates a new category', sign_in: true do
       fill_in 'category_description', with: Faker::Lorem.paragraph
     end
     click_button 'new-category-btn'
-    expect(page).to have_content 'Your category has been successfully created.'
+    expect(page).to have_content 'Your category has been created.'
   end
 end

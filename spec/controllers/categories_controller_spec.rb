@@ -63,4 +63,59 @@ describe CategoriesController do
       it { should set_flash[:notice].to('Please sign in to continue.') }
     end
   end
+
+  describe 'GET #new' do
+    context 'when the user is signed in' do
+      before(:each) do
+        sign_in_as create(:user)
+        get :new
+      end
+
+      it { should respond_with :ok }
+      it { should render_template :new }
+      it { should render_with_layout :application }
+      it { expect(assigns(:category)).to be_a_new(Category) }
+    end
+
+    context 'when the user is not signed in ' do
+      before(:each) { get :new }
+
+      it { should respond_with :redirect }
+      it { should redirect_to sign_in_path }
+      it { should set_flash[:notice].to('Please sign in to continue.') }
+    end
+  end
+
+  describe 'POST #create' do
+    context 'when the user is signed in' do
+      before(:each) do
+        sign_in_as create(:user)
+        post :create, category: { name: Faker::Lorem.sentence, description: Faker::Lorem.paragraph }
+      end
+
+      it { should respond_with :redirect }
+      it { should redirect_to edit_category_path(assigns(:category)) }
+      it { should set_flash[:notice].to('Your category has been created.') }
+    end
+
+    context 'when the user is not signed in' do
+      before(:each) { post :create, category: { name: Faker::Lorem.sentence, description: Faker::Lorem.paragraph } }
+
+      it { should respond_with :redirect }
+      it { should redirect_to sign_in_path }
+      it { should set_flash[:notice].to('Please sign in to continue.') }
+    end
+  end
+
+  describe 'GET #edit' do
+
+  end
+
+  describe 'PATCH #update' do
+
+  end
+
+  describe 'DELETE #destroy' do
+
+  end
 end
