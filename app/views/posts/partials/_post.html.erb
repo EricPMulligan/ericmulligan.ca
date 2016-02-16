@@ -1,10 +1,10 @@
 <article id="post-<%= post.id %>">
   <header>
     <h2>
-      <%- if current_page?(controller: 'posts', action: 'show') %>
-        <%= post.title %><%= ' (Unpublished)' unless post.published? %>
-      <%- else %>
+      <%- if linked %>
         <%= link_to "#{post.title}#{' (Unpublished)' unless post.published?}", show_post_path(post.slug) %>
+      <%- else %>
+        <%= post.title %><%= ' (Unpublished)' unless post.published? %>
       <%- end %>
     </h2>
   </header>
@@ -14,7 +14,7 @@
   <footer>
     <p>Post created by <%= post.created_by.email %> <%= time_ago_in_words(post.created_at) %>.</p>
     <%- if signed_in? && current_user == post.created_by %>
-      <p><%= link_to 'Edit', edit_post_path(post.slug), id: "edit-post-#{post.id}-lnk" %> | <%= link_to 'Delete', show_post_path(post.slug), method: :delete, id: "delete-post-#{post.id}-lnk" %></p>
+      <p><%= link_to 'Edit', edit_post_path(post.slug), id: "edit-post-#{post.id}-lnk" %> | <%= link_to 'Delete', post_path(post), method: :delete, id: "delete-post-#{post.id}-lnk" %></p>
     <%- end %>
   </footer>
 </article>

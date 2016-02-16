@@ -30,7 +30,6 @@ class CategoriesController < ApplicationController
 
   # GET /categories/:id
   def show
-
   end
 
   # GET /categories/:id/edit

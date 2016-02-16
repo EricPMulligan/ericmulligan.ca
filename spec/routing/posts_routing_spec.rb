@@ -6,7 +6,7 @@ describe 'Posts routing' do
   it { expect(get:    '/blah/edit').to route_to(controller: 'posts', action: 'edit',    slug: 'blah') }
   it { expect(get:    '/new').to       route_to(controller: 'posts', action: 'new') }
   it { expect(post:   '/').to          route_to(controller: 'posts', action: 'create') }
-  it { expect(put:    '/blah').to      route_to(controller: 'posts', action: 'update',  slug: 'blah') }
-  it { expect(patch:  '/blah').to      route_to(controller: 'posts', action: 'update',  slug: 'blah') }
-  it { expect(delete: '/blah').to      route_to(controller: 'posts', action: 'destroy', slug: 'blah') }
+  it { expect(put:    '/posts/1').to   route_to(controller: 'posts', action: 'update',  id: '1') }
+  it { expect(patch:  '/posts/1').to   route_to(controller: 'posts', action: 'update',  id: '1') }
+  it { expect(delete: '/posts/1').to   route_to(controller: 'posts', action: 'destroy', id: '1') }
 end

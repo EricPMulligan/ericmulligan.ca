@@ -8,7 +8,7 @@ describe PostsController do
       context 'when under 10 published posts exists' do
         before(:each) do
           create_list(:post, 7, published: true)
-          @posts = Post.latest.published.paginate(page: 1, per_page: 10)
+          @posts = Post.includes(:created_by).latest.paginate(page: 1, per_page: 10)
           get :index
         end
 
@@ -23,7 +23,7 @@ describe PostsController do
 
         context 'when accessing the first page' do
           before(:each) do
-            @posts = Post.latest.published.paginate(page: 1, per_page: 10)
+            @posts = Post.includes(:created_by).latest.paginate(page: 1, per_page: 10)
             get :index
           end
 
@@ -346,7 +346,10 @@ describe PostsController do
 
   describe 'GET #edit' do
     context 'when the user is signed in' do
-      before(:each) { sign_in_as create(:user) }
+      before(:each) do
+        request.env['HTTP_REFERER'] = root_path
+        sign_in_as create(:user)
+      end
 
       context 'when the post exists' do
         context 'when the user is the author of the post' do
@@ -382,7 +385,7 @@ describe PostsController do
 
             it { should respond_with :redirect }
             it { should redirect_to root_path }
-            it { should set_flash[:alert].to('You are not the author of the unpublished post.') }
+            it { should set_flash[:alert].to('You are not the author of the post.') }
           end
         end
       end
@@ -419,7 +422,7 @@ describe PostsController do
               before(:each) do
                 post = create(:post, created_by: @controller.current_user)
                 post.title = ''
-                patch :update, post: { title: post.title, body: post.body }, commit: 'Publish', slug: post.slug
+                patch :update, post: { title: post.title, body: post.body }, commit: 'Publish', id: post.id
               end
 
               it { should respond_with :ok }
@@ -433,7 +436,7 @@ describe PostsController do
                 before(:each) do
                   other_post = create(:post)
                   post = create(:post, created_by: @controller.current_user)
-                  patch :update, post: { title: other_post.title, body: post.body }, commit: 'Publish', slug: post.slug
+                  patch :update, post: { title: other_post.title, body: post.body }, commit: 'Publish', id: post.id
                 end
 
                 it { should respond_with :ok }
@@ -446,7 +449,7 @@ describe PostsController do
                 before(:each) do
                   other_post = create(:post, created_at: Faker::Date.between(2.years.ago, Date.yesterday))
                   post = create(:post, created_by: @controller.current_user)
-                  patch :update, post: { title: other_post.title, body: post.body }, commit: 'Publish', slug: post.slug
+                  patch :update, post: { title: other_post.title, body: post.body }, commit: 'Publish', id: post.id
                 end
 
                 it { should respond_with :redirect }
@@ -458,7 +461,7 @@ describe PostsController do
             context 'when entering a unique title' do
               before(:each) do
                 post = create(:post, created_by: @controller.current_user)
-                patch :update, post: { title: Faker::Lorem.sentence, body: post.body }, commit: 'Publish', slug: post.slug
+                patch :update, post: { title: Faker::Lorem.sentence, body: post.body }, commit: 'Publish', id: post.id
               end
 
               it { should respond_with :redirect }
@@ -466,41 +469,52 @@ describe PostsController do
               it { should set_flash[:notice].to('Your post has been published.') }
             end
           end
-        end
 
-        context 'when the user attempts to save the post' do
-          context 'when not entering the title' do
-            before(:each) do
-              post = create(:post, created_by: @controller.current_user)
-              post.title = ''
-              patch :update, post: { title: post.title, body: post.body }, commit: 'Save', slug: post.slug
-            end
-
-            it { should respond_with :ok }
-            it { should render_template :edit }
-            it { should render_with_layout :application }
-            it { should set_flash.now[:alert].to("Title can't be blank") }
-          end
-
-          context 'when entering the same title as another post' do
-            context 'on the same day' do
+          context 'when the user attempts to save the post' do
+            context 'when not entering the title' do
               before(:each) do
-                other_post = create(:post)
                 post = create(:post, created_by: @controller.current_user)
-                patch :update, post: { title: other_post.title, body: post.body }, commit: 'Save', slug: post.slug
+                post.title = ''
+                patch :update, post: { title: post.title, body: post.body }, commit: 'Save', id: post.id
               end
 
               it { should respond_with :ok }
               it { should render_template :edit }
               it { should render_with_layout :application }
-              it { should set_flash.now[:alert].to('The title of two posts cannot be identical on the same day.') }
+              it { should set_flash.now[:alert].to("Title can't be blank") }
             end
 
-            context 'not on the same day' do
+            context 'when entering the same title as another post' do
+              context 'on the same day' do
+                before(:each) do
+                  other_post = create(:post)
+                  post = create(:post, created_by: @controller.current_user)
+                  patch :update, post: { title: other_post.title, body: post.body }, commit: 'Save', id: post.id
+                end
+
+                it { should respond_with :ok }
+                it { should render_template :edit }
+                it { should render_with_layout :application }
+                it { should set_flash.now[:alert].to('The title of two posts cannot be identical on the same day.') }
+              end
+
+              context 'not on the same day' do
+                before(:each) do
+                  other_post = create(:post, created_at: Faker::Date.between(2.years.ago, Date.yesterday))
+                  post = create(:post, created_by: @controller.current_user)
+                  patch :update, post: { title: other_post.title, body: post.body }, commit: 'Save', id: post.id
+                end
+
+                it { should respond_with :redirect }
+                it { should redirect_to show_post_path(assigns(:post).slug) }
+                it { should set_flash[:notice].to('Your post has been saved.') }
+              end
+            end
+
+            context 'when entering a unique title' do
               before(:each) do
-                other_post = create(:post, created_at: Faker::Date.between(2.years.ago, Date.yesterday))
                 post = create(:post, created_by: @controller.current_user)
-                patch :update, post: { title: other_post.title, body: post.body }, commit: 'Save', slug: post.slug
+                patch :update, post: { title: Faker::Lorem.sentence, body: post.body }, commit: 'Save', id: post.id
               end
 
               it { should respond_with :redirect }
@@ -508,21 +522,13 @@ describe PostsController do
               it { should set_flash[:notice].to('Your post has been saved.') }
             end
           end
-
-          context 'when entering a unique title' do
-            before(:each) do
-              post = create(:post, created_by: @controller.current_user)
-              patch :update, post: { title: Faker::Lorem.sentence, body: post.body }, commit: 'Save', slug: post.slug
-            end
-
-            it { should respond_with :redirect }
-            it { should redirect_to show_post_path(assigns(:post).slug) }
-            it { should set_flash[:notice].to('Your post has been saved.') }
-          end
         end
 
         context 'when the user is not the author of the post' do
-          before(:each) { patch :update, slug: create(:post).slug }
+          before(:each) do
+            request.env['HTTP_REFERER'] = root_path
+            patch :update, id: create(:post).id
+          end
 
           it { should respond_with :redirect }
           it { should redirect_to root_path }
@@ -531,7 +537,7 @@ describe PostsController do
       end
 
       context 'when the post does not exist' do
-        before(:each) { patch :update, slug: 'blah' }
+        before(:each) { patch :update, id: 9389893 }
 
         it { should respond_with :redirect }
         it { should redirect_to root_path }
@@ -543,7 +549,7 @@ describe PostsController do
     context 'when the user is not signed in' do
       before(:each) do
         post = create(:post, published: false)
-        patch :update, slug: post.slug
+        patch :update, id: post.id
       end
 
       it { should respond_with :redirect }
@@ -559,7 +565,7 @@ describe PostsController do
       context 'when the user is the author of the post' do
         before(:each) do
           post = create(:post, created_by: @controller.current_user)
-          delete :destroy, slug: post.slug
+          delete :destroy, id: post.id
         end
 
         it { should respond_with :redirect }
@@ -571,7 +577,7 @@ describe PostsController do
         before(:each) do
           request.env['HTTP_REFERER'] = root_path
           post = create(:post)
-          delete :destroy, slug: post.slug
+          delete :destroy, id: post.id
         end
 
         it { should respond_with :redirect }
@@ -583,7 +589,7 @@ describe PostsController do
     context 'when the user is not signed in' do
       before(:each) do
         post = create(:post, published: false)
-        delete :destroy, slug: post.slug
+        delete :destroy, id: post.id
       end
 
       it { should respond_with :redirect }

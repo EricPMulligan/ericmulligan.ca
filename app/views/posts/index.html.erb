@@ -1,6 +1,6 @@
 <section id="posts">
   <%- @posts.each do |post| %>
-    <%= render partial: 'posts/partials/post', locals: { post: post } %>
+    <%= render partial: 'posts/partials/post', locals: { post: post, linked: true } %>
   <%- end %>
 
   <%= will_paginate @posts, renderer: BootstrapPagination::Rails %>

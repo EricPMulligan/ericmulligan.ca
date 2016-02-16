@@ -1,6 +1,8 @@
 class PostsController < ApplicationController
-  before_action :require_login, only: [:new, :create, :edit, :update, :destroy]
-  before_action :find_post,     only: [:show, :edit, :update, :destroy]
+  before_action :require_login,     only: [:new, :create, :edit, :update, :destroy]
+  before_action :find_post_by_slug, only: [:show, :edit]
+  before_action :find_post_by_id,   only: [:update, :destroy]
+  before_action :check_ownership, only: [:edit, :update, :destroy]
 
   rescue_from ActiveRecord::RecordNotFound, with: :record_not_found
   rescue_from SQLite3::ConstraintException, with: :constraint
@@ -9,9 +11,9 @@ class PostsController < ApplicationController
   def index
     @posts = nil
     if signed_in?
-      @posts = Post.published.union(Post.where(created_by: current_user, published: false)).latest.paginate(page: params[:page], per_page: 10)
+      @posts = Post.includes(:created_by).where(['published = :published or created_by_id = :created_by', published: true, created_by: current_user.id]).latest.paginate(page: params[:page], per_page: 10)
     else
-      @posts = Post.latest.published.paginate(page: params[:page], per_page: 10)
+      @posts = Post.includes(:created_by).published.latest.paginate(page: params[:page], per_page: 10)
     end
   end
 
@@ -24,15 +26,15 @@ class PostsController < ApplicationController
   def create
     @post            = Post.new(post_params)
     @post.created_by = current_user
-    @post.published  = true if params[:commit] == 'Publish'
-
+    message = case params[:commit]
+                when 'Publish'
+                  @post.published    = true
+                  @post.published_at = DateTime.now
+                  'Your post has been published.'
+                when 'Save'
+                  'Your post has been saved.'
+              end
     if @post.save
-      message = case params[:commit]
-                  when 'Publish'
-                    'Your post has been published.'
-                  when 'Save'
-                    'Your post has been saved.'
-                end
       redirect_to edit_post_path(@post.slug), notice: message
     else
       flash.now[:alert] = @post.errors.full_messages.join('<br />')
@@ -50,21 +52,21 @@ class PostsController < ApplicationController
 
   # GET /:slug/edit
   def edit
-    redirect_to root_path, alert: 'You are not the author of the unpublished post.' unless @post.created_by == current_user
   end
 
-  # PUT /:slug
-  # PATCH /:slug
+  # PUT /posts/:id
+  # PATCH /posts/:id
   def update
-    return redirect_to root_path, alert: 'You are not the author of the post.' unless @post.created_by == current_user
-
-    if @post.update(post_params)
-      message = case params[:commit]
-                  when 'Publish'
-                    'Your post has been published.'
-                  when 'Save'
-                    'Your post has been saved.'
-                end
+    post_hash = post_params
+    message = case params[:commit]
+                when 'Publish'
+                  post_hash[:published]    = true
+                  post_hash[:published_at] = DateTime.now
+                  'Your post has been published.'
+                when 'Save'
+                  'Your post has been saved.'
+              end
+    if @post.update(post_hash)
       redirect_to show_post_path(@post.slug), notice: message
     else
       flash.now[:alert] = @post.errors.full_messages.join('<br />')
@@ -72,10 +74,8 @@ class PostsController < ApplicationController
     end
   end
 
-  # Delete /:slug
+  # Delete /posts/:id
   def destroy
-    return redirect_to :back, alert: 'You are not the author of the post.' unless @post.created_by == current_user
-
     if @post.destroy
       redirect_to root_path, notice: 'Your post has been deleted.'
     else
@@ -84,6 +84,10 @@ class PostsController < ApplicationController
   end
 
   private
+
+  def check_ownership
+    redirect_to :back, alert: 'You are not the author of the post.' unless @post.created_by == current_user
+  end
 
   def constraint
     flash.now[:alert] = 'The title of two posts cannot be identical on the same day.'
@@ -96,8 +100,12 @@ class PostsController < ApplicationController
     render template
   end
 
-  def find_post
+  def find_post_by_slug
     @post = Post.find_by!(slug: params[:slug])
+  end
+
+  def find_post_by_id
+    @post = Post.find(params[:id])
   end
 
   def record_not_found

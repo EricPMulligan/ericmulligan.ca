@@ -21,11 +21,10 @@ Rails.application.routes.draw do
   root to: 'posts#index'
 
   resources :categories
+  resources :posts, only: [:update, :destroy]
 
   get 'new'        => 'posts#new',     as: :new_post
   get ':slug'      => 'posts#show',    as: :show_post
   get ':slug/edit' => 'posts#edit',    as: :edit_post
   post ''          => 'posts#create',  as: :posts
-  match ':slug'    => 'posts#update',  via: [:put, :patch]
-  delete ':slug'   => 'posts#destroy', as: :delete_post
 end
