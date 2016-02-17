@@ -67,7 +67,7 @@ class PostsController < ApplicationController
                   'Your post has been saved.'
               end
     if @post.update(post_hash)
-      redirect_to show_post_path(@post.slug), notice: message
+      redirect_to edit_post_path(@post.slug), notice: message
     else
       flash.now[:alert] = @post.errors.full_messages.join('<br />')
       render :edit
@@ -123,7 +123,8 @@ class PostsController < ApplicationController
   def post_params
     params.require(:post).permit(
       :title,
-      :body
+      :body,
+      :category_ids => []
     )
   end
 end

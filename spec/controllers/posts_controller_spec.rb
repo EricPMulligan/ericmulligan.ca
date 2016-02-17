@@ -278,6 +278,30 @@ describe PostsController do
           it { should redirect_to edit_post_path(assigns(:post).slug) }
           it { should set_flash[:notice].to('Your post has been published.') }
         end
+
+        context 'when checking a category' do
+          before(:each) do
+            categories = create_list(:category, 5, created_by: @controller.current_user)
+            post :create, post: { title: Faker::Lorem.sentence, body: Faker::Lorem.paragraph, category_ids: [categories[2].id] }, commit: 'Publish'
+          end
+
+          it { should respond_with :redirect }
+          it { should redirect_to edit_post_path(assigns(:post).slug) }
+          it { should set_flash[:notice].to('Your post has been published.') }
+          it { expect(assigns(:post).categories.count).not_to eq(0) }
+        end
+
+        context 'when checking multiple categories' do
+          before(:each) do
+            categories = create_list(:category, 5, created_by: @controller.current_user)
+            post :create, post: { title: Faker::Lorem.sentence, body: Faker::Lorem.paragraph, category_ids: [categories[2].id, categories[4].id] }, commit: 'Publish'
+          end
+
+          it { should respond_with :redirect }
+          it { should redirect_to edit_post_path(assigns(:post).slug) }
+          it { should set_flash[:notice].to('Your post has been published.') }
+          it { expect(assigns(:post).categories.count).to eq 2 }
+        end
       end
 
       context 'when the user attempts to save the post' do
@@ -329,6 +353,30 @@ describe PostsController do
           it { should respond_with :redirect }
           it { should redirect_to edit_post_path(assigns(:post).slug) }
           it { should set_flash[:notice].to('Your post has been saved.') }
+        end
+
+        context 'when checking a category' do
+          before(:each) do
+            categories = create_list(:category, 5, created_by: @controller.current_user)
+            post :create, post: { title: Faker::Lorem.sentence, body: Faker::Lorem.paragraph, category_ids: [categories[2].id] }, commit: 'Save'
+          end
+
+          it { should respond_with :redirect }
+          it { should redirect_to edit_post_path(assigns(:post).slug) }
+          it { should set_flash[:notice].to('Your post has been saved.') }
+          it { expect(assigns(:post).categories.count).not_to eq(0) }
+        end
+
+        context 'when checking multiple categories' do
+          before(:each) do
+            categories = create_list(:category, 5, created_by: @controller.current_user)
+            post :create, post: { title: Faker::Lorem.sentence, body: Faker::Lorem.paragraph, category_ids: [categories[2].id, categories[4].id] }, commit: 'Save'
+          end
+
+          it { should respond_with :redirect }
+          it { should redirect_to edit_post_path(assigns(:post).slug) }
+          it { should set_flash[:notice].to('Your post has been saved.') }
+          it { expect(assigns(:post).categories.count).to eq 2 }
         end
       end
     end
@@ -453,7 +501,7 @@ describe PostsController do
                 end
 
                 it { should respond_with :redirect }
-                it { should redirect_to show_post_path(assigns(:post).slug) }
+                it { should redirect_to edit_post_path(assigns(:post).slug) }
                 it { should set_flash[:notice].to('Your post has been published.') }
               end
             end
@@ -465,8 +513,46 @@ describe PostsController do
               end
 
               it { should respond_with :redirect }
-              it { should redirect_to show_post_path(assigns(:post).slug) }
+              it { should redirect_to edit_post_path(assigns(:post).slug) }
               it { should set_flash[:notice].to('Your post has been published.') }
+            end
+
+            context 'when checking a category' do
+              before(:each) do
+                categories = create_list(:category, 5, created_by: @controller.current_user)
+                @post = create(:post, created_by: @controller.current_user)
+                patch :update, post: { title: @post.title, body: @post.body, category_ids: [categories[2].id] }, commit: 'Publish', id: @post.id
+              end
+
+              it { should respond_with :redirect }
+              it { should redirect_to edit_post_path(@post.slug) }
+              it { should set_flash[:notice].to('Your post has been published.') }
+              it { expect(@post.reload.categories.count).not_to eq(0) }
+            end
+
+            context 'when checking multiple categories' do
+              before(:each) do
+                @post = create(:post, created_by: @controller.current_user)
+                categories = create_list(:category, 5, created_by: @controller.current_user)
+                patch :update, post: { title: @post.title, body: @post.body, category_ids: [categories[2].id, categories[4].id] }, commit: 'Publish', id: @post.id
+              end
+
+              it { should respond_with :redirect }
+              it { should redirect_to edit_post_path(@post.slug) }
+              it { should set_flash[:notice].to('Your post has been published.') }
+              it { expect(@post.reload.categories.count).to eq 2 }
+            end
+
+            context 'when unchecking one or more categories' do
+              before(:each) do
+                @post = create(:post_with_categories, created_by: @controller.current_user)
+                patch :update, post: { title: @post.title, body: @post.body, category_ids: [@post.categories[1].id] }, commit: 'Publish', id: @post.id
+              end
+
+              it { should respond_with :redirect }
+              it { should redirect_to edit_post_path(@post.slug) }
+              it { should set_flash[:notice].to('Your post has been published.') }
+              it { expect(@post.reload.categories.count).to eq 1 }
             end
           end
 
@@ -506,7 +592,7 @@ describe PostsController do
                 end
 
                 it { should respond_with :redirect }
-                it { should redirect_to show_post_path(assigns(:post).slug) }
+                it { should redirect_to edit_post_path(assigns(:post).slug) }
                 it { should set_flash[:notice].to('Your post has been saved.') }
               end
             end
@@ -518,8 +604,46 @@ describe PostsController do
               end
 
               it { should respond_with :redirect }
-              it { should redirect_to show_post_path(assigns(:post).slug) }
+              it { should redirect_to edit_post_path(assigns(:post).slug) }
               it { should set_flash[:notice].to('Your post has been saved.') }
+            end
+
+            context 'when checking a category' do
+              before(:each) do
+                categories = create_list(:category, 5, created_by: @controller.current_user)
+                @post = create(:post, created_by: @controller.current_user)
+                patch :update, post: { title: @post.title, body: @post.body, category_ids: [categories[2].id] }, commit: 'Save', id: @post.id
+              end
+
+              it { should respond_with :redirect }
+              it { should redirect_to edit_post_path(@post.slug) }
+              it { should set_flash[:notice].to('Your post has been saved.') }
+              it { expect(@post.reload.categories.count).not_to eq(0) }
+            end
+
+            context 'when checking multiple categories' do
+              before(:each) do
+                @post = create(:post, created_by: @controller.current_user)
+                categories = create_list(:category, 5, created_by: @controller.current_user)
+                patch :update, post: { title: @post.title, body: @post.body, category_ids: [categories[2].id, categories[4].id] }, commit: 'Save', id: @post.id
+              end
+
+              it { should respond_with :redirect }
+              it { should redirect_to edit_post_path(@post.slug) }
+              it { should set_flash[:notice].to('Your post has been saved.') }
+              it { expect(@post.reload.categories.count).to eq 2 }
+            end
+
+            context 'when unchecking one or more categories' do
+              before(:each) do
+                @post = create(:post_with_categories, created_by: @controller.current_user)
+                patch :update, post: { title: @post.title, body: @post.body, category_ids: [@post.categories[1].id] }, commit: 'Save', id: @post.id
+              end
+
+              it { should respond_with :redirect }
+              it { should redirect_to edit_post_path(@post.slug) }
+              it { should set_flash[:notice].to('Your post has been saved.') }
+              it { expect(@post.reload.categories.count).to eq 1 }
             end
           end
         end
