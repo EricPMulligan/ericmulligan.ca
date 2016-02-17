@@ -1,4 +1,4 @@
-<article id="post-<%= post.id %>">
+<article class="post" id="post-<%= post.id %>">
   <header>
     <h2>
       <%- if linked %>
@@ -16,5 +16,12 @@
     <%- if signed_in? && current_user == post.created_by %>
       <p><%= link_to 'Edit', edit_post_path(post.slug), id: "edit-post-#{post.id}-lnk" %> | <%= link_to 'Delete', post_path(post), method: :delete, id: "delete-post-#{post.id}-lnk" %></p>
     <%- end %>
+    <div class="categories">
+      <%- post.categories.each do |category| %>
+        <%= link_to category_path(category) do %>
+          <span class="label label-default"><%= category.name %></span>
+        <%- end %>
+      <%- end %>
+    </div>
   </footer>
 </article>
