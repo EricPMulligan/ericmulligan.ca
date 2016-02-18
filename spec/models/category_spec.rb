@@ -9,11 +9,13 @@ describe Category do
       it { should have_db_column(:created_by_id).of_type(:integer). with_options(null: false) }
       it { should have_db_column(:name).         of_type(:string).  with_options(null: false) }
       it { should have_db_column(:description).  of_type(:text).    with_options(null: false, default: '') }
+      it { should have_db_column(:slug).         of_type(:string).  with_options(null: false) }
     end
 
     describe 'indexes' do
       it { should have_db_index(:created_by_id) }
       it { should have_db_index(:name) }
+      it { should have_db_index(:slug) }
     end
   end
 
@@ -27,6 +29,7 @@ describe Category do
         it { should respond_to(:created_by) }
         it { should respond_to(:name) }
         it { should respond_to(:description) }
+        it { should respond_to(:slug) }
       end
 
       describe 'associations' do

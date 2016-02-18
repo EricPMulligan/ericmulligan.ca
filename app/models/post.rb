@@ -1,5 +1,5 @@
 class Post < ActiveRecord::Base
-  before_save :update_slug_if_title_changed
+  before_validation :update_slug_if_title_changed
 
   scope :latest,    ->{ order(created_at: :desc) }
   scope :published, ->{ where(published: true) }
@@ -10,6 +10,11 @@ class Post < ActiveRecord::Base
 
   validates :created_by, presence: true
   validates :title,      presence: true
+  validates :slug,       presence: true,
+                         uniqueness: {
+                           case_sensitive: false,
+                           scope: :created_by_id
+                         }
 
   private
 

@@ -11,9 +11,9 @@ class PostsController < ApplicationController
   def index
     @posts = nil
     if signed_in?
-      @posts = Post.includes(:created_by).where(['published = :published or created_by_id = :created_by', published: true, created_by: current_user.id]).latest.paginate(page: params[:page], per_page: 10)
+      @posts = Post.includes(:created_by, :categories).where(['published = :published or created_by_id = :created_by', published: true, created_by: current_user.id]).latest.paginate(page: params[:page], per_page: 10)
     else
-      @posts = Post.includes(:created_by).published.latest.paginate(page: params[:page], per_page: 10)
+      @posts = Post.includes(:created_by, :categories).published.latest.paginate(page: params[:page], per_page: 10)
     end
   end
 
