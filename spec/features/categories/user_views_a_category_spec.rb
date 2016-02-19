@@ -9,10 +9,11 @@ feature 'User views a category', sign_in: true do
     expect(page).to have_content category.description
   end
 
-  scenario "'As a user, I should not be able to view another user's categories" do
+  scenario 'As a user, I should be able to see all categories' do
     category = create(:category)
     visit category_path(category)
 
-    expect(page).to have_content 'You are not the creator of the category.'
+    expect(page).to have_content category.name
+    expect(page).to have_content category.description
   end
 end

@@ -278,7 +278,7 @@ describe CategoriesController do
       end
 
       it { should respond_with :ok }
-      it { should render_template :coding }
+      it { should render_template :show }
       it { should render_with_layout :application }
       it { expect(assigns(:category)).to eq(@category) }
     end
@@ -287,7 +287,51 @@ describe CategoriesController do
       before(:each) { get :coding }
 
       it { should respond_with :redirect }
-      it { should redirect_to root_path }
+      it { should redirect_to categories_path }
+      it { should set_flash[:alert].to('The category you are looking for does not exist.') }
+    end
+  end
+
+  describe 'GET #music' do
+    context 'when the category exists' do
+      before(:each) do
+        @category = create(:category, name: 'Music')
+        get :music
+      end
+
+      it { should respond_with :ok }
+      it { should render_template :show }
+      it { should render_with_layout :application }
+      it { expect(assigns(:category)).to eq(@category) }
+    end
+
+    context 'when the category does not exist' do
+      before(:each) { get :music }
+
+      it { should respond_with :redirect }
+      it { should redirect_to categories_path }
+      it { should set_flash[:alert].to('The category you are looking for does not exist.') }
+    end
+  end
+
+  describe 'GET #other' do
+    context 'when the category exists' do
+      before(:each) do
+        @category = create(:category, name: 'Other')
+        get :other
+      end
+
+      it { should respond_with :ok }
+      it { should render_template :show }
+      it { should render_with_layout :application }
+      it { expect(assigns(:category)).to eq(@category) }
+    end
+
+    context 'when the category does not exist' do
+      before(:each) { get :other }
+
+      it { should respond_with :redirect }
+      it { should redirect_to categories_path }
       it { should set_flash[:alert].to('The category you are looking for does not exist.') }
     end
   end

@@ -1,7 +1,7 @@
 <section id="category-<%= @category.id %>">
   <section class="category">
     <header>
-      <h2>Category - <%= @category.name %></h2>
+      <h2><%= @category.name %></h2>
     </header>
     <content>
       <%= @category.description %>
@@ -10,7 +10,6 @@
       <div>
         <%= link_to 'Edit', edit_category_path(@category), id: "edit-category-#{@category.id}-lnk" %> | <%= link_to 'Delete', category_path(@category), method: :delete, id: "delete-category-#{@category.id}-lnk" %>
       </div>
-      <p><%= @category.posts.count %> post(s)</p>
     </footer>
   </section>
   <div class="associated-posts">
@@ -18,9 +17,12 @@
       <h3>Posts</h3>
     </header>
     <content>
-      <%- @category.posts.each do |post| %>
+      <%- @category.posts.includes(:categories, :created_by).each do |post| %>
         <%= render partial: 'posts/partials/post', locals: { post: post, linked: true } %>
       <%- end %>
     </content>
+    <footer>
+      <p><%= @category.posts.count %> post(s)</p>
+    </footer>
   </div>
 </section>
