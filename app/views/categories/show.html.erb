@@ -7,9 +7,11 @@
       <%= @category.description %>
     </content>
     <footer>
-      <div>
-        <%= link_to 'Edit', edit_category_path(@category), id: "edit-category-#{@category.id}-lnk" %> | <%= link_to 'Delete', category_path(@category), method: :delete, id: "delete-category-#{@category.id}-lnk" %>
-      </div>
+      <%- if signed_in? %>
+        <div>
+          <%= link_to 'Edit', edit_category_path(@category), id: "edit-category-#{@category.id}-lnk" %> | <%= link_to 'Delete', category_path(@category), method: :delete, id: "delete-category-#{@category.id}-lnk" %>
+        </div>
+      <%- end %>
     </footer>
   </section>
   <div class="associated-posts">

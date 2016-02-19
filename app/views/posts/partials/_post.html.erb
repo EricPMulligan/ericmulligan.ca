@@ -9,7 +9,7 @@
     </h2>
   </header>
   <section>
-    <%= post.body %>
+    <%= mark_it_down(post.body).html_safe %>
   </section>
   <footer>
     <p>Post created by <%= post.created_by.email %> <%= time_ago_in_words(post.created_at) %>.</p>
