@@ -15,7 +15,7 @@ describe Category do
     describe 'indexes' do
       it { should have_db_index(:created_by_id) }
       it { should have_db_index(:name) }
-      it { should have_db_index(:slug) }
+      it { should have_db_index(:slug).unique }
     end
   end
 
@@ -45,8 +45,12 @@ describe Category do
       end
 
       describe 'validation' do
+        subject { create(:category) }
+
         it { should validate_presence_of(:name) }
         it { should validate_presence_of(:created_by) }
+
+        it { should validate_uniqueness_of(:slug).case_insensitive }
       end
 
       describe 'scopes' do

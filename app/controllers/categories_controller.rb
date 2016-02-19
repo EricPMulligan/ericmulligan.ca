@@ -1,13 +1,13 @@
 class CategoriesController < ApplicationController
-  before_action :require_login
+  before_action :require_login,   only: [:create, :destroy, :edit, :new, :update]
   before_action :find_category,   only: [:show, :edit, :update, :destroy]
-  before_action :check_ownership, only: [:show, :edit, :update, :destroy]
+  before_action :check_ownership, only: [:edit, :update, :destroy]
 
   rescue_from ActiveRecord::RecordNotFound, with: :record_not_found
 
   # GET /categories
   def index
-    @categories = Category.where(created_by: current_user).order(name: :asc).paginate(page: params[:page], per_page: 20)
+    @categories = Category.order(name: :asc).paginate(page: params[:page], per_page: 20)
   end
 
   # GET /categories/new

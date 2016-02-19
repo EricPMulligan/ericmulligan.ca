@@ -2,65 +2,53 @@ require 'rails_helper'
 
 describe CategoriesController do
   describe 'GET #index' do
-    context 'when the user is signed in' do
-      before(:each) { sign_in_as create(:user) }
+    context 'when there are no categories' do
+      before(:each) { get :index }
 
-      context 'when there are no categories' do
-        before(:each) { get :index }
+      it { should respond_with :ok }
+      it { should render_template :index }
+      it { should render_with_layout :application }
+      it { expect(assigns(:categories)).to be_empty }
+    end
 
-        it { should respond_with :ok }
-        it { should render_template :index }
-        it { should render_with_layout :application }
-        it { expect(assigns(:categories)).to be_empty }
+    context 'when less than 20 categories exist' do
+      before(:each) do
+        create_list(:post, 2)
+        get :index
       end
 
-      context 'when less than 20 categories exist' do
+      it { should respond_with :ok }
+      it { should render_template :index }
+      it { should render_with_layout :application }
+      it { expect(assigns(:categories)).to match_array(Category.paginate(page: 1, per_page: 20).order(name: :asc)) }
+    end
+
+    context 'when more than 20 categories exist' do
+      before(:each) { create_list(:post, 22) }
+
+      context 'when accessing the first page' do
         before(:each) do
-          create_list(:post, 2, created_by: @controller.current_user)
+          @categories = Category.paginate(page: 1, per_page: 20).order(name: :asc)
           get :index
         end
 
         it { should respond_with :ok }
         it { should render_template :index }
         it { should render_with_layout :application }
-        it { expect(assigns(:categories)).to match_array(Category.where(created_by: @controller.current_user).paginate(page: 1, per_page: 20).order(name: :asc)) }
+        it { expect(assigns(:categories)).to match_array(@categories) }
       end
 
-      context 'when more than 20 categories exist' do
-        before(:each) { create_list(:post, 22, created_by: @controller.current_user) }
-
-        context 'when accessing the first page' do
-          before(:each) do
-            @categories = Category.where(created_by: @controller.current_user).paginate(page: 1, per_page: 20).order(name: :asc)
-            get :index
-          end
-
-          it { should respond_with :ok }
-          it { should render_template :index }
-          it { should render_with_layout :application }
-          it { expect(assigns(:categories)).to match_array(@categories) }
+      context 'when accessing the second page' do
+        before(:each) do
+          @categories = Category.paginate(page: 2, per_page: 20).order(name: :asc)
+          get :index
         end
 
-        context 'when accessing the second page' do
-          before(:each) do
-            @categories = Category.where(created_by: @controller.current_user).paginate(page: 2, per_page: 20).order(name: :asc)
-            get :index
-          end
-
-          it { should respond_with :ok }
-          it { should render_template :index }
-          it { should render_with_layout :application }
-          it { expect(assigns(:categories)).to match_array(@categories) }
-        end
+        it { should respond_with :ok }
+        it { should render_template :index }
+        it { should render_with_layout :application }
+        it { expect(assigns(:categories)).to match_array(@categories) }
       end
-    end
-
-    context 'when the user is not signed in' do
-      before(:each) { get :index }
-
-      it { should respond_with :redirect }
-      it { should redirect_to sign_in_path }
-      it { should set_flash[:notice].to('Please sign in to continue.') }
     end
   end
 
@@ -108,46 +96,24 @@ describe CategoriesController do
   end
 
   describe 'GET #show' do
-    context 'when the user is signed in' do
-      before(:each) { sign_in_as create(:user) }
-
-      context 'when the category exists' do
-        context 'when the user is the creator of the category' do
-          before(:each) do
-            @category = create(:category, created_by: @controller.current_user)
-            get :show, id: @category.id
-          end
-
-          it { should respond_with :ok }
-          it { should render_template :show }
-          it { should render_with_layout :application }
-          it { expect(assigns(:category)).to eq(@category) }
-        end
-
-        context 'when the user is not the creator of the category' do
-          before(:each) { get :show, id: create(:category).id }
-
-          it { should respond_with :redirect }
-          it { should redirect_to categories_path }
-          it { should set_flash[:alert].to('You are not the creator of the category.') }
-        end
+    context 'when the category exists' do
+      before(:each) do
+        @category = create(:category)
+        get :show, id: @category.id
       end
 
-      context 'when the category does not exist' do
-        before(:each) { get :show, id: 9898398 }
-
-        it { should respond_with :redirect }
-        it { should redirect_to categories_path }
-        it { should set_flash[:alert].to('The category you are looking for does not exist.') }
-      end
+      it { should respond_with :ok }
+      it { should render_template :show }
+      it { should render_with_layout :application }
+      it { expect(assigns(:category)).to eq(@category) }
     end
 
-    context 'when the user is not signed in' do
-      before(:each) { get :show, id: create(:category) }
+    context 'when the category does not exist' do
+      before(:each) { get :show, id: 9898398 }
 
       it { should respond_with :redirect }
-      it { should redirect_to sign_in_path }
-      it { should set_flash[:notice].to('Please sign in to continue.') }
+      it { should redirect_to categories_path }
+      it { should set_flash[:alert].to('The category you are looking for does not exist.') }
     end
   end
 
@@ -301,6 +267,28 @@ describe CategoriesController do
       it { should respond_with :redirect }
       it { should redirect_to sign_in_path }
       it { should set_flash[:notice].to('Please sign in to continue.') }
+    end
+  end
+
+  describe 'GET #coding' do
+    context 'when the category exists' do
+      before(:each) do
+        @category = create(:category, name: 'Coding')
+        get :coding
+      end
+
+      it { should respond_with :ok }
+      it { should render_template :coding }
+      it { should render_with_layout :application }
+      it { expect(assigns(:category)).to eq(@category) }
+    end
+
+    context 'when the category does not exist' do
+      before(:each) { get :coding }
+
+      it { should respond_with :redirect }
+      it { should redirect_to root_path }
+      it { should set_flash[:alert].to('The category you are looking for does not exist.') }
     end
   end
 end
