@@ -16,7 +16,8 @@ Rails.application.routes.draw do
   get 'music'  => 'categories#music',  as: :music
   get 'other'  => 'categories#other',  as: :other
 
-  get 'contact-me' => 'contact#index', as: :contact
+  get  'contact-me' => 'contact#index',  as: :contact
+  post 'contact-me' => 'contact#create'
 
   root to: 'posts#index'
 
