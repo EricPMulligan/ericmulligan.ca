@@ -1,13 +1,14 @@
 class CategoriesController < ApplicationController
-  before_action :require_login
-  before_action :find_category,   only: [:show, :edit, :update, :destroy]
-  before_action :check_ownership, only: [:show, :edit, :update, :destroy]
+  before_action :require_login,                       only: [:create, :destroy, :edit, :new, :update]
+  before_action :find_category,                       only: [:show, :edit, :update, :destroy]
+  before_action :check_ownership,                     only: [:edit, :update, :destroy]
+  before_action :render_categories_and_posts_on_show, only: [:coding, :music, :other]
 
   rescue_from ActiveRecord::RecordNotFound, with: :record_not_found
 
   # GET /categories
   def index
-    @categories = Category.where(created_by: current_user).order(name: :asc).paginate(page: params[:page], per_page: 20)
+    @categories = Category.includes(:created_by).order(name: :asc).paginate(page: params[:page], per_page: 20)
   end
 
   # GET /categories/new
@@ -87,5 +88,10 @@ class CategoriesController < ApplicationController
 
   def record_not_found
     redirect_to categories_path, alert: 'The category you are looking for does not exist.'
+  end
+
+  def render_categories_and_posts_on_show
+    @category = Category.find_by!(slug: params[:action])
+    render :show
   end
 end

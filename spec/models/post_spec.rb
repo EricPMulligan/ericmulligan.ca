@@ -52,10 +52,13 @@ describe Post do
       end
 
       describe 'validation' do
-        subject { create(:post) }
+        before(:each) { create(:post) }
 
         it { should validate_presence_of :title }
         it { should validate_presence_of :created_by }
+        it { should validate_presence_of :slug }
+
+        it { should validate_uniqueness_of(:slug).case_insensitive.scoped_to(:created_by_id) }
       end
 
       describe 'scopes' do

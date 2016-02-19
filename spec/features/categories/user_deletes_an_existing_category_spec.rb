@@ -16,6 +16,7 @@ feature 'User deletes an existing category', sign_in: true do
     categories = create_list(:category, 2)
     visit categories_path
 
-    expect(page).not_to have_content categories[0].name
+    expect(page).to have_content categories[0].name
+    expect(page).not_to have_link "delete-category-#{categories[0].id}-lnk"
   end
 end
