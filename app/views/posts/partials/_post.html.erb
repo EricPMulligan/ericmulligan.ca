@@ -12,7 +12,7 @@
     <%= mark_it_down(post.body).html_safe %>
   </section>
   <footer>
-    <p>Post created by <%= post.created_by.email %> <%= time_ago_in_words(post.created_at) %>.</p>
+    <p>Post created by <%= author(post.created_by) %> <%= time_ago_in_words(post.created_at) %>.</p>
     <%- if signed_in? && current_user == post.created_by %>
       <p><%= link_to 'Edit', edit_post_path(post.slug), id: "edit-post-#{post.id}-lnk" %> | <%= link_to 'Delete', post_path(post), method: :delete, id: "delete-post-#{post.id}-lnk" %></p>
     <%- end %>

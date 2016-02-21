@@ -12,4 +12,12 @@ module ApplicationHelper
       "Eric Mulligan's Blog"
     end
   end
+
+  def author(user)
+    if user.name.present?
+      user.name
+    else
+      user.email
+    end
+  end
 end

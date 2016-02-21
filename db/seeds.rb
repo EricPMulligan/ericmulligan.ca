@@ -1,6 +1,7 @@
 user = User.create!(
   email: 'eric.pierre.mulligan@gmail.com',
-  password: ENV['ERICMULLIGAN_CA_PASSWD']
+  password: ENV['ERICMULLIGAN_CA_PASSWD'],
+  name: 'Eric Mulligan'
 )
 
 Category.create!(
