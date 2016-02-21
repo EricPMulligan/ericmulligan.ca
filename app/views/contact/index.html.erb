@@ -1,6 +1,8 @@
 <%= provide :title, 'Contact Me' %>
 
 <div class="new-contact">
+  <h2>Contact Me</h2>
+
   <%= form_for @contact, url: contact_path, html: { id: 'new-contact' } do |f| %>
     <div class="form-group">
       <%= f.label :name %>
@@ -9,12 +11,12 @@
 
     <div class="form-group">
       <%= f.label :email %>
-      <%= f.email_field :email, class: 'form-control' %>
+      <%= f.email_field :email, class: 'form-control', required: true %>
     </div>
 
     <div class="form-group">
       <%= f.label :body %>
-      <%= f.text_area :body, class: 'form-control' %>
+      <%= f.text_area :body, class: 'form-control contact-body', required: true %>
     </div>
 
     <div class="form-group">

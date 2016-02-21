@@ -15,7 +15,21 @@
       <div class="col-md-12">
         <div id="flash">
           <% flash.each do |key, value| -%>
-            <div id="flash_<%= key %>"><%=h value %></div>
+            <div class="alert alert-<%= alert_type(key) %> alert-dismissable">
+              <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+              <%- if key == 'alert' %>
+                <p>The server returned the following error(s):</p>
+                <ul>
+                  <%- value.each do |error| %>
+                    <%= error.html_safe %>
+                  <%- end %>
+                </ul>
+              <%- else %>
+                <%= value %>
+              <%- end %>
+            </div>
           <% end %>
         </div>
 

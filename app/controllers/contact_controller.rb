@@ -12,7 +12,7 @@ class ContactController < ApplicationController
       ContactMailer.submit_contact(@contact).deliver_later
       redirect_to contact_path, notice: 'Your message has been sent to Eric Mulligan.'
     else
-      flash.now[:alert] = @contact.errors.full_messages.join('<br />')
+      flash.now[:alert] = @contact.errors.full_messages.map { |e| "<li>#{e}</li>" }
       render :index
     end
   end
