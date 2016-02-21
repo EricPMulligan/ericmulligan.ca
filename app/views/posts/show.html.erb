@@ -1,3 +1,4 @@
+<%= provide :title, @post.title %>
 <%= render partial: 'posts/partials/post', locals: { post: @post, linked: false } %>
 
 <div id="disqus_thread"></div>

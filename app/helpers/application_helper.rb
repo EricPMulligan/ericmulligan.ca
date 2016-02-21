@@ -4,4 +4,12 @@ module ApplicationHelper
     markdown = Redcarpet::Markdown.new(renderer)
     markdown.render(markeddown)
   end
+
+  def title(name = nil)
+    if name.present?
+      "#{name} - Eric Mulligan's Blog"
+    else
+      "Eric Mulligan's Blog"
+    end
+  end
 end
