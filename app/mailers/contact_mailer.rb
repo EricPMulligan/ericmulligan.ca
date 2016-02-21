@@ -1,5 +1,5 @@
 class ContactMailer < ApplicationMailer
-  default from: 'eric.pierre.mulligan@gmail.com'
+  default from: 'EricMulligan.ca Website <eric.pierre.mulligan@gmail.com>'
 
   def submit_contact(contact)
     @contact = contact
