@@ -15,7 +15,7 @@ describe Category do
     describe 'indexes' do
       it { should have_db_index(:created_by_id) }
       it { should have_db_index(:name) }
-      it { should have_db_index(:slug).unique }
+      it { should have_db_index(:slug) }
     end
   end
 
