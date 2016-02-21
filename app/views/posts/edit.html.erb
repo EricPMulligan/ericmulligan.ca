@@ -1,3 +1,5 @@
+<%= provide :title, "Editing '#{@post.title}'" %>
+
 <div class="edit-post">
   <%= render partial: 'posts/partials/form', locals: { post: @post, id: 'edit-post', url: post_path(@post) } %>
 </div>
