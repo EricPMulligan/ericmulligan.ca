@@ -26,7 +26,7 @@ describe ContactController do
         it { should respond_with :ok }
         it { should render_template :index }
         it { should render_with_layout :application }
-        it { should set_flash.now[:alert].to("Email can't be blank") }
+        it { should set_flash.now[:alert].to(["<li>Email can't be blank</li>"]) }
       end
 
       context 'when the body is missing' do
@@ -35,7 +35,7 @@ describe ContactController do
         it { should respond_with :ok }
         it { should render_template :index }
         it { should render_with_layout :application }
-        it { should set_flash.now[:alert].to("Body can't be blank") }
+        it { should set_flash.now[:alert].to(["<li>Body can't be blank</li>"]) }
       end
     end
   end
