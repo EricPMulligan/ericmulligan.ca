@@ -24,7 +24,7 @@ ActiveRecord::Schema.define(version: 20160221015358) do
 
   add_index "categories", ["created_by_id"], name: "index_categories_on_created_by_id"
   add_index "categories", ["name"], name: "index_categories_on_name"
-  add_index "categories", ["slug"], name: "index_categories_on_slug"
+  add_index "categories", ["slug"], name: "index_categories_on_slug", unique: true
 
   create_table "categories_posts", force: :cascade do |t|
     t.integer "category_id", null: false
