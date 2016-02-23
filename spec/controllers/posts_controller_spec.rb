@@ -240,7 +240,7 @@ describe PostsController do
           it { should respond_with :ok }
           it { should render_template :new }
           it { should render_with_layout :application }
-          it { should set_flash.now[:alert].to("Title can't be blank") }
+          it { should set_flash.now[:alert].to(["<li>Title can't be blank</li>"]) }
         end
 
         context 'when entering the same title as another post' do
@@ -253,7 +253,7 @@ describe PostsController do
             it { should respond_with :ok }
             it { should render_template :new }
             it { should render_with_layout :application }
-            it { should set_flash.now[:alert].to('The title of two posts cannot be identical on the same day.') }
+            it { should set_flash.now[:alert].to(['<li>The title of two posts cannot be identical on the same day.</li>']) }
           end
 
           context 'not on the same day' do
@@ -310,32 +310,32 @@ describe PostsController do
             new_post         = {}
             new_post[:title] = ''
             new_post[:body]  = Faker::Lorem.paragraph
-            post :create, post: new_post, commit: 'Save'
+            post :create, post: new_post, commit: 'Save As Draft'
           end
 
           it { should respond_with :ok }
           it { should render_template :new }
           it { should render_with_layout :application }
-          it { should set_flash.now[:alert].to("Title can't be blank") }
+          it { should set_flash.now[:alert].to(["<li>Title can't be blank</li>"]) }
         end
 
         context 'when entering the same title as another post' do
           context 'on the same day' do
             before(:each) do
               other_post = create(:post)
-              post :create, post: { title: other_post.title, body: Faker::Lorem.paragraph }, commit: 'Save'
+              post :create, post: { title: other_post.title, body: Faker::Lorem.paragraph }, commit: 'Save As Draft'
             end
 
             it { should respond_with :ok }
             it { should render_template :new }
             it { should render_with_layout :application }
-            it { should set_flash.now[:alert].to('The title of two posts cannot be identical on the same day.') }
+            it { should set_flash.now[:alert].to(['<li>The title of two posts cannot be identical on the same day.</li>']) }
           end
 
           context 'not on the same day' do
             before(:each) do
               other_post = create(:post, created_at: Faker::Date.between(2.years.ago, Date.today))
-              post :create, post: { title: other_post.title, body: Faker::Lorem.paragraph }, commit: 'Save'
+              post :create, post: { title: other_post.title, body: Faker::Lorem.paragraph }, commit: 'Save As Draft'
             end
 
             it { should respond_with :redirect }
@@ -347,7 +347,7 @@ describe PostsController do
         context 'when entering a unique title' do
           before(:each) do
             create(:post)
-            post :create, post: { title: Faker::Lorem.sentence, body: Faker::Lorem.paragraph }, commit: 'Save'
+            post :create, post: { title: Faker::Lorem.sentence, body: Faker::Lorem.paragraph }, commit: 'Save As Draft'
           end
 
           it { should respond_with :redirect }
@@ -358,7 +358,7 @@ describe PostsController do
         context 'when checking a category' do
           before(:each) do
             categories = create_list(:category, 5, created_by: @controller.current_user)
-            post :create, post: { title: Faker::Lorem.sentence, body: Faker::Lorem.paragraph, category_ids: [categories[2].id] }, commit: 'Save'
+            post :create, post: { title: Faker::Lorem.sentence, body: Faker::Lorem.paragraph, category_ids: [categories[2].id] }, commit: 'Save As Draft'
           end
 
           it { should respond_with :redirect }
@@ -370,7 +370,7 @@ describe PostsController do
         context 'when checking multiple categories' do
           before(:each) do
             categories = create_list(:category, 5, created_by: @controller.current_user)
-            post :create, post: { title: Faker::Lorem.sentence, body: Faker::Lorem.paragraph, category_ids: [categories[2].id, categories[4].id] }, commit: 'Save'
+            post :create, post: { title: Faker::Lorem.sentence, body: Faker::Lorem.paragraph, category_ids: [categories[2].id, categories[4].id] }, commit: 'Save As Draft'
           end
 
           it { should respond_with :redirect }
@@ -465,185 +465,211 @@ describe PostsController do
 
       context 'when the post exists' do
         context 'when the user is the author of the post' do
-          context 'when the user attempts to publish the post' do
-            context 'when not entering the title' do
+          context 'when the post is already published' do
+            context 'when the user attempts to unpublish the post' do
               before(:each) do
-                post = create(:post, created_by: @controller.current_user)
-                post.title = ''
-                patch :update, post: { title: post.title, body: post.body }, commit: 'Publish', id: post.id
+                @post = create(:published_post, created_by: @controller.current_user)
+                patch :update, post: { title: @post.title, body: @post.body }, commit: 'Unpublish', id: @post.id
               end
 
-              it { should respond_with :ok }
-              it { should render_template :edit }
-              it { should render_with_layout :application }
-              it { should set_flash.now[:alert].to("Title can't be blank") }
+              it { should respond_with :redirect }
+              it { should redirect_to edit_post_path(@post.slug) }
+              it { should set_flash[:notice].to('Your post has been unpublished.') }
             end
 
-            context 'when entering the same title as another post' do
-              context 'on the same day' do
+            context 'when the user attempts to save the post' do
+              before(:each) do
+                @post = create(:published_post, created_by: @controller.current_user)
+                patch :update, post: { title: @post.title, body: @post.body }, commit: 'Update', id: @post.id
+              end
+
+              it { should respond_with :redirect }
+              it { should redirect_to edit_post_path(@post.slug) }
+              it { should set_flash[:notice].to('Your post has been saved.') }
+            end
+          end
+
+          context 'when the post is unpublished' do
+            context 'when the user attempts to publish the post' do
+              context 'when not entering the title' do
                 before(:each) do
-                  other_post = create(:post)
                   post = create(:post, created_by: @controller.current_user)
-                  patch :update, post: { title: other_post.title, body: post.body }, commit: 'Publish', id: post.id
+                  post.title = ''
+                  patch :update, post: { title: post.title, body: post.body }, commit: 'Publish', id: post.id
                 end
 
                 it { should respond_with :ok }
                 it { should render_template :edit }
                 it { should render_with_layout :application }
-                it { should set_flash.now[:alert].to('The title of two posts cannot be identical on the same day.') }
+                it { should set_flash.now[:alert].to(["<li>Title can't be blank</li>"]) }
               end
 
-              context 'not on the same day' do
+              context 'when entering the same title as another post' do
+                context 'on the same day' do
+                  before(:each) do
+                    other_post = create(:post)
+                    post = create(:post, created_by: @controller.current_user)
+                    patch :update, post: { title: other_post.title, body: post.body }, commit: 'Publish', id: post.id
+                  end
+
+                  it { should respond_with :ok }
+                  it { should render_template :edit }
+                  it { should render_with_layout :application }
+                  it { should set_flash.now[:alert].to(['<li>The title of two posts cannot be identical on the same day.</li>']) }
+                end
+
+                context 'not on the same day' do
+                  before(:each) do
+                    other_post = create(:post, created_at: Faker::Date.between(2.years.ago, Date.yesterday))
+                    post = create(:post, created_by: @controller.current_user)
+                    patch :update, post: { title: other_post.title, body: post.body }, commit: 'Publish', id: post.id
+                  end
+
+                  it { should respond_with :redirect }
+                  it { should redirect_to edit_post_path(assigns(:post).slug) }
+                  it { should set_flash[:notice].to('Your post has been published.') }
+                end
+              end
+
+              context 'when entering a unique title' do
                 before(:each) do
-                  other_post = create(:post, created_at: Faker::Date.between(2.years.ago, Date.yesterday))
                   post = create(:post, created_by: @controller.current_user)
-                  patch :update, post: { title: other_post.title, body: post.body }, commit: 'Publish', id: post.id
+                  patch :update, post: { title: Faker::Lorem.sentence, body: post.body }, commit: 'Publish', id: post.id
                 end
 
                 it { should respond_with :redirect }
                 it { should redirect_to edit_post_path(assigns(:post).slug) }
                 it { should set_flash[:notice].to('Your post has been published.') }
               end
-            end
 
-            context 'when entering a unique title' do
-              before(:each) do
-                post = create(:post, created_by: @controller.current_user)
-                patch :update, post: { title: Faker::Lorem.sentence, body: post.body }, commit: 'Publish', id: post.id
-              end
-
-              it { should respond_with :redirect }
-              it { should redirect_to edit_post_path(assigns(:post).slug) }
-              it { should set_flash[:notice].to('Your post has been published.') }
-            end
-
-            context 'when checking a category' do
-              before(:each) do
-                categories = create_list(:category, 5, created_by: @controller.current_user)
-                @post = create(:post, created_by: @controller.current_user)
-                patch :update, post: { title: @post.title, body: @post.body, category_ids: [categories[2].id] }, commit: 'Publish', id: @post.id
-              end
-
-              it { should respond_with :redirect }
-              it { should redirect_to edit_post_path(@post.slug) }
-              it { should set_flash[:notice].to('Your post has been published.') }
-              it { expect(@post.reload.categories.count).not_to eq(0) }
-            end
-
-            context 'when checking multiple categories' do
-              before(:each) do
-                @post = create(:post, created_by: @controller.current_user)
-                categories = create_list(:category, 5, created_by: @controller.current_user)
-                patch :update, post: { title: @post.title, body: @post.body, category_ids: [categories[2].id, categories[4].id] }, commit: 'Publish', id: @post.id
-              end
-
-              it { should respond_with :redirect }
-              it { should redirect_to edit_post_path(@post.slug) }
-              it { should set_flash[:notice].to('Your post has been published.') }
-              it { expect(@post.reload.categories.count).to eq 2 }
-            end
-
-            context 'when unchecking one or more categories' do
-              before(:each) do
-                @post = create(:post_with_categories, created_by: @controller.current_user)
-                patch :update, post: { title: @post.title, body: @post.body, category_ids: [@post.categories[1].id] }, commit: 'Publish', id: @post.id
-              end
-
-              it { should respond_with :redirect }
-              it { should redirect_to edit_post_path(@post.slug) }
-              it { should set_flash[:notice].to('Your post has been published.') }
-              it { expect(@post.reload.categories.count).to eq 1 }
-            end
-          end
-
-          context 'when the user attempts to save the post' do
-            context 'when not entering the title' do
-              before(:each) do
-                post = create(:post, created_by: @controller.current_user)
-                post.title = ''
-                patch :update, post: { title: post.title, body: post.body }, commit: 'Save', id: post.id
-              end
-
-              it { should respond_with :ok }
-              it { should render_template :edit }
-              it { should render_with_layout :application }
-              it { should set_flash.now[:alert].to("Title can't be blank") }
-            end
-
-            context 'when entering the same title as another post' do
-              context 'on the same day' do
+              context 'when checking a category' do
                 before(:each) do
-                  other_post = create(:post)
+                  categories = create_list(:category, 5, created_by: @controller.current_user)
+                  @post = create(:post, created_by: @controller.current_user)
+                  patch :update, post: { title: @post.title, body: @post.body, category_ids: [categories[2].id] }, commit: 'Publish', id: @post.id
+                end
+
+                it { should respond_with :redirect }
+                it { should redirect_to edit_post_path(@post.slug) }
+                it { should set_flash[:notice].to('Your post has been published.') }
+                it { expect(@post.reload.categories.count).not_to eq(0) }
+              end
+
+              context 'when checking multiple categories' do
+                before(:each) do
+                  @post = create(:post, created_by: @controller.current_user)
+                  categories = create_list(:category, 5, created_by: @controller.current_user)
+                  patch :update, post: { title: @post.title, body: @post.body, category_ids: [categories[2].id, categories[4].id] }, commit: 'Publish', id: @post.id
+                end
+
+                it { should respond_with :redirect }
+                it { should redirect_to edit_post_path(@post.slug) }
+                it { should set_flash[:notice].to('Your post has been published.') }
+                it { expect(@post.reload.categories.count).to eq 2 }
+              end
+
+              context 'when unchecking one or more categories' do
+                before(:each) do
+                  @post = create(:post_with_categories, created_by: @controller.current_user)
+                  patch :update, post: { title: @post.title, body: @post.body, category_ids: [@post.categories[1].id] }, commit: 'Publish', id: @post.id
+                end
+
+                it { should respond_with :redirect }
+                it { should redirect_to edit_post_path(@post.slug) }
+                it { should set_flash[:notice].to('Your post has been published.') }
+                it { expect(@post.reload.categories.count).to eq 1 }
+              end
+            end
+
+            context 'when the user attempts to save the post' do
+              context 'when not entering the title' do
+                before(:each) do
                   post = create(:post, created_by: @controller.current_user)
-                  patch :update, post: { title: other_post.title, body: post.body }, commit: 'Save', id: post.id
+                  post.title = ''
+                  patch :update, post: { title: post.title, body: post.body }, commit: 'Update', id: post.id
                 end
 
                 it { should respond_with :ok }
                 it { should render_template :edit }
                 it { should render_with_layout :application }
-                it { should set_flash.now[:alert].to('The title of two posts cannot be identical on the same day.') }
+                it { should set_flash.now[:alert].to(["<li>Title can't be blank</li>"]) }
               end
 
-              context 'not on the same day' do
+              context 'when entering the same title as another post' do
+                context 'on the same day' do
+                  before(:each) do
+                    other_post = create(:post)
+                    post = create(:post, created_by: @controller.current_user)
+                    patch :update, post: { title: other_post.title, body: post.body }, commit: 'Update', id: post.id
+                  end
+
+                  it { should respond_with :ok }
+                  it { should render_template :edit }
+                  it { should render_with_layout :application }
+                  it { should set_flash.now[:alert].to(['<li>The title of two posts cannot be identical on the same day.</li>']) }
+                end
+
+                context 'not on the same day' do
+                  before(:each) do
+                    other_post = create(:post, created_at: Faker::Date.between(2.years.ago, Date.yesterday))
+                    post = create(:post, created_by: @controller.current_user)
+                    patch :update, post: { title: other_post.title, body: post.body }, commit: 'Update', id: post.id
+                  end
+
+                  it { should respond_with :redirect }
+                  it { should redirect_to edit_post_path(assigns(:post).slug) }
+                  it { should set_flash[:notice].to('Your post has been saved.') }
+                end
+              end
+
+              context 'when entering a unique title' do
                 before(:each) do
-                  other_post = create(:post, created_at: Faker::Date.between(2.years.ago, Date.yesterday))
                   post = create(:post, created_by: @controller.current_user)
-                  patch :update, post: { title: other_post.title, body: post.body }, commit: 'Save', id: post.id
+                  patch :update, post: { title: Faker::Lorem.sentence, body: post.body }, commit: 'Update', id: post.id
                 end
 
                 it { should respond_with :redirect }
                 it { should redirect_to edit_post_path(assigns(:post).slug) }
                 it { should set_flash[:notice].to('Your post has been saved.') }
               end
-            end
 
-            context 'when entering a unique title' do
-              before(:each) do
-                post = create(:post, created_by: @controller.current_user)
-                patch :update, post: { title: Faker::Lorem.sentence, body: post.body }, commit: 'Save', id: post.id
+              context 'when checking a category' do
+                before(:each) do
+                  categories = create_list(:category, 5, created_by: @controller.current_user)
+                  @post = create(:post, created_by: @controller.current_user)
+                  patch :update, post: { title: @post.title, body: @post.body, category_ids: [categories[2].id] }, commit: 'Update', id: @post.id
+                end
+
+                it { should respond_with :redirect }
+                it { should redirect_to edit_post_path(@post.slug) }
+                it { should set_flash[:notice].to('Your post has been saved.') }
+                it { expect(@post.reload.categories.count).not_to eq(0) }
               end
 
-              it { should respond_with :redirect }
-              it { should redirect_to edit_post_path(assigns(:post).slug) }
-              it { should set_flash[:notice].to('Your post has been saved.') }
-            end
+              context 'when checking multiple categories' do
+                before(:each) do
+                  @post = create(:post, created_by: @controller.current_user)
+                  categories = create_list(:category, 5, created_by: @controller.current_user)
+                  patch :update, post: { title: @post.title, body: @post.body, category_ids: [categories[2].id, categories[4].id] }, commit: 'Update', id: @post.id
+                end
 
-            context 'when checking a category' do
-              before(:each) do
-                categories = create_list(:category, 5, created_by: @controller.current_user)
-                @post = create(:post, created_by: @controller.current_user)
-                patch :update, post: { title: @post.title, body: @post.body, category_ids: [categories[2].id] }, commit: 'Save', id: @post.id
+                it { should respond_with :redirect }
+                it { should redirect_to edit_post_path(@post.slug) }
+                it { should set_flash[:notice].to('Your post has been saved.') }
+                it { expect(@post.reload.categories.count).to eq 2 }
               end
 
-              it { should respond_with :redirect }
-              it { should redirect_to edit_post_path(@post.slug) }
-              it { should set_flash[:notice].to('Your post has been saved.') }
-              it { expect(@post.reload.categories.count).not_to eq(0) }
-            end
+              context 'when unchecking one or more categories' do
+                before(:each) do
+                  @post = create(:post_with_categories, created_by: @controller.current_user)
+                  patch :update, post: { title: @post.title, body: @post.body, category_ids: [@post.categories[1].id] }, commit: 'Update', id: @post.id
+                end
 
-            context 'when checking multiple categories' do
-              before(:each) do
-                @post = create(:post, created_by: @controller.current_user)
-                categories = create_list(:category, 5, created_by: @controller.current_user)
-                patch :update, post: { title: @post.title, body: @post.body, category_ids: [categories[2].id, categories[4].id] }, commit: 'Save', id: @post.id
+                it { should respond_with :redirect }
+                it { should redirect_to edit_post_path(@post.slug) }
+                it { should set_flash[:notice].to('Your post has been saved.') }
+                it { expect(@post.reload.categories.count).to eq 1 }
               end
-
-              it { should respond_with :redirect }
-              it { should redirect_to edit_post_path(@post.slug) }
-              it { should set_flash[:notice].to('Your post has been saved.') }
-              it { expect(@post.reload.categories.count).to eq 2 }
-            end
-
-            context 'when unchecking one or more categories' do
-              before(:each) do
-                @post = create(:post_with_categories, created_by: @controller.current_user)
-                patch :update, post: { title: @post.title, body: @post.body, category_ids: [@post.categories[1].id] }, commit: 'Save', id: @post.id
-              end
-
-              it { should respond_with :redirect }
-              it { should redirect_to edit_post_path(@post.slug) }
-              it { should set_flash[:notice].to('Your post has been saved.') }
-              it { expect(@post.reload.categories.count).to eq 1 }
             end
           end
         end

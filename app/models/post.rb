@@ -12,13 +12,17 @@ class Post < ActiveRecord::Base
   validates :title,      presence: true
   validates :slug,       presence: true,
                          uniqueness: {
-                           case_sensitive: false,
-                           scope: :created_by_id
+                           case_sensitive: false
                          }
 
   private
 
   def update_slug_if_title_changed
-    self.slug = "#{self.created_at.present? ? self.created_at.to_date.to_s : DateTime.now.to_date.to_s}-#{title.parameterize}" if title_changed?
+    date = if self.created_at.present?
+             self.created_at.strftime('%Y-%m-%d')
+           else
+             DateTime.now.strftime('%Y-%m-%d')
+           end
+    self.slug = "#{date}-#{title.parameterize}" if title_changed?
   end
 end

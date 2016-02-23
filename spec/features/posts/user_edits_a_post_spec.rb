@@ -9,9 +9,9 @@ feature 'User edits a post', sign_in: true do
       fill_in 'post_title', with: Faker::Lorem.sentence
       fill_in 'post_body', with: Faker::Lorem.paragraph
     end
-    click_button 'edit-post-publish-btn'
+    click_button 'edit-post-update-btn'
 
-    expect(page).to have_content 'Your post has been published.'
+    expect(page).to have_content 'Your post has been saved.'
   end
 
   scenario 'As a user, I should be able to edit a non-published post' do
@@ -22,7 +22,7 @@ feature 'User edits a post', sign_in: true do
       fill_in 'post_title', with: Faker::Lorem.sentence
       fill_in 'post_body', with: Faker::Lorem.paragraph
     end
-    click_button 'edit-post-save-btn'
+    click_button 'edit-post-update-btn'
 
     expect(page).to have_content 'Your post has been saved.'
   end
