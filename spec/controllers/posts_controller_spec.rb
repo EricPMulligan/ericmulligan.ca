@@ -135,6 +135,18 @@ describe PostsController do
     end
   end
 
+  describe 'GET #index_rss' do
+    before(:each) do
+      @posts = create_list(:published_post, 5)
+      get :index_rss, format: 'rss'
+    end
+
+    it { should respond_with :ok }
+    it { should render_template :index_rss }
+    it { should_not render_with_layout }
+    it { expect(assigns(:posts)).to match_array(@posts) }
+  end
+
   describe 'GET #show' do
     context 'when the post exists' do
       context 'when the post is published' do

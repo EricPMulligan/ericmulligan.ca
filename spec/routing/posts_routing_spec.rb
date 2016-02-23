@@ -9,4 +9,5 @@ describe 'Posts routing' do
   it { expect(put:    '/posts/1').to   route_to(controller: 'posts', action: 'update',  id: '1') }
   it { expect(patch:  '/posts/1').to   route_to(controller: 'posts', action: 'update',  id: '1') }
   it { expect(delete: '/posts/1').to   route_to(controller: 'posts', action: 'destroy', id: '1') }
+  it { expect(get:    '/index').to     route_to(controller: 'posts', action: 'index_rss') }
 end

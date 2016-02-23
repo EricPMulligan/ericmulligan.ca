@@ -19,8 +19,9 @@ Rails.application.routes.draw do
   resources :categories
   resources :posts, only: [:update, :destroy]
 
-  get 'new'        => 'posts#new',     as: :new_post
-  get ':slug'      => 'posts#show',    as: :show_post
-  get ':slug/edit' => 'posts#edit',    as: :edit_post
-  post ''          => 'posts#create',  as: :posts
+  get 'index'      => 'posts#index_rss', as: :posts_rss
+  get 'new'        => 'posts#new',       as: :new_post
+  get ':slug'      => 'posts#show',      as: :show_post
+  get ':slug/edit' => 'posts#edit',      as: :edit_post
+  post ''          => 'posts#create',    as: :posts
 end

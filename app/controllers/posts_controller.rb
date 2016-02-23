@@ -16,6 +16,12 @@ class PostsController < ApplicationController
     end
   end
 
+  # GET /index.rss
+  def index_rss
+    @posts = Post.includes(:categories).published.latest
+    render layout: false
+  end
+
   # GET /new
   def new
     @post = Post.new
