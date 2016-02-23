@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160221170944) do
+ActiveRecord::Schema.define(version: 20160223180122) do
 
   create_table "categories", force: :cascade do |t|
     t.datetime "created_at",                 null: false
@@ -66,14 +66,22 @@ ActiveRecord::Schema.define(version: 20160221170944) do
   add_index "delayed_jobs", ["priority", "run_at"], name: "delayed_jobs_priority"
 
   create_table "posts", force: :cascade do |t|
-    t.integer  "created_by_id",                 null: false
-    t.string   "title",                         null: false
-    t.text     "body",          default: "",    null: false
-    t.boolean  "published",     default: false, null: false
+    t.integer  "created_by_id",                   null: false
+    t.string   "title",                           null: false
+    t.text     "body",            default: "",    null: false
+    t.boolean  "published",       default: false, null: false
     t.datetime "published_at"
-    t.string   "slug",                          null: false
-    t.datetime "created_at",                    null: false
-    t.datetime "updated_at",                    null: false
+    t.string   "slug",                            null: false
+    t.datetime "created_at",                      null: false
+    t.datetime "updated_at",                      null: false
+    t.string   "seo_title"
+    t.string   "seo_description"
+    t.string   "seo_locale"
+    t.string   "seo_site_name"
+    t.string   "og_type"
+    t.string   "fb_admins"
+    t.string   "twitter_card"
+    t.string   "twitter_site"
   end
 
   add_index "posts", ["created_at"], name: "index_posts_on_created_at"
