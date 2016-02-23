@@ -2,5 +2,5 @@
 
 <div class="new-post">
   <h2>New Post</h2>
-  <%= render partial: 'posts/partials/form', locals: { post: @post, id: 'new-post', url: posts_path } %>
+  <%= render partial: 'posts/partials/form', locals: { post: @post, id: 'new-post', url: posts_path, editing: false } %>
 </div>

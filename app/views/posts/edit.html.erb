@@ -1,5 +1,6 @@
-<%= provide :title, "Editing '#{@post.title}'" %>
+<%= provide :title, "Editing '#{@post.title}'".html_safe %>
 
 <div class="edit-post">
-  <%= render partial: 'posts/partials/form', locals: { post: @post, id: 'edit-post', url: post_path(@post) } %>
+  <h2>Edit Post</h2>
+  <%= render partial: 'posts/partials/form', locals: { post: @post, id: 'edit-post', url: post_path(@post), editing: true } %>
 </div>

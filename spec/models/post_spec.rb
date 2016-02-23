@@ -58,7 +58,7 @@ describe Post do
         it { should validate_presence_of :created_by }
         it { should validate_presence_of :slug }
 
-        it { should validate_uniqueness_of(:slug).case_insensitive.scoped_to(:created_by_id) }
+        it { should validate_uniqueness_of(:slug).case_insensitive }
       end
 
       describe 'scopes' do

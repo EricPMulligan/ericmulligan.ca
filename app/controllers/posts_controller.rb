@@ -5,7 +5,6 @@ class PostsController < ApplicationController
   before_action :check_ownership, only: [:edit, :update, :destroy]
 
   rescue_from ActiveRecord::RecordNotFound, with: :record_not_found
-  rescue_from SQLite3::ConstraintException, with: :constraint
 
   # GET /
   def index
@@ -31,13 +30,15 @@ class PostsController < ApplicationController
                   @post.published    = true
                   @post.published_at = DateTime.now
                   'Your post has been published.'
-                when 'Save'
+                when 'Save As Draft'
                   'Your post has been saved.'
               end
     if @post.save
       redirect_to edit_post_path(@post.slug), notice: message
     else
-      flash.now[:alert] = @post.errors.full_messages.join('<br />')
+      flash.now[:alert] = @post.errors.messages.has_key?(:slug) ?
+                            ['<li>The title of two posts cannot be identical on the same day.</li>'] :
+                            @post.errors.full_messages.map { |error| "<li>#{error}</li>" }
       render :new
     end
   end
@@ -60,16 +61,24 @@ class PostsController < ApplicationController
     post_hash = post_params
     message = case params[:commit]
                 when 'Publish'
-                  post_hash[:published]    = true
-                  post_hash[:published_at] = DateTime.now
+                  unless @post.published
+                    post_hash[:published]    = true
+                    post_hash[:published_at] = DateTime.now
+                  end
                   'Your post has been published.'
-                when 'Save'
+                when 'Update'
                   'Your post has been saved.'
+                when 'Unpublish'
+                  post_hash[:published]    = false
+                  post_hash[:published_at] = nil
+                  'Your post has been unpublished.'
               end
     if @post.update(post_hash)
       redirect_to edit_post_path(@post.slug), notice: message
     else
-      flash.now[:alert] = @post.errors.full_messages.join('<br />')
+      flash.now[:alert] = @post.errors.messages.has_key?(:slug) ?
+                            ['<li>The title of two posts cannot be identical on the same day.</li>'] :
+                            @post.errors.full_messages.map { |error| "<li>#{error}</li>" }
       render :edit
     end
   end
@@ -87,17 +96,6 @@ class PostsController < ApplicationController
 
   def check_ownership
     redirect_to :back, alert: 'You are not the author of the post.' unless @post.created_by == current_user
-  end
-
-  def constraint
-    flash.now[:alert] = 'The title of two posts cannot be identical on the same day.'
-    template = case params[:action]
-                 when 'create'
-                   :new
-                 when 'update'
-                   :edit
-               end
-    render template
   end
 
   def find_post_by_slug

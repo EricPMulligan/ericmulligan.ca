@@ -1,28 +1,41 @@
 <%= form_for post, url: url, html: { id: id } do |f| %>
-  <div class="form-group">
-    <%= f.label :title %>
-    <%= f.text_field :title, class: 'form-control', required: true %>
-  </div>
+  <div class="row">
+    <div class="col-md-10">
+      <div class="form-group">
+        <%= f.label :title %>
+        <%= f.text_field :title, class: 'form-control', required: true %>
+      </div>
 
-  <div class="form-group">
-    <%= f.label :body %>
-    <%= f.text_area :body, class: 'form-control post-body' %>
-  </div>
-
-  <div class="form-group">
-    <%= f.label :categories %>
-    <div class="row">
-      <%= f.collection_check_boxes(:category_ids, Category.where(created_by: current_user).order(name: :asc), :id, :name) do |c| %>
-        <div class="col-md-2">
-          <%= c.check_box %>
-          <%= c.label %>
-        </div>
-      <%- end %>
+      <div class="form-group">
+        <%= f.label :body %>
+        <%= f.text_area :body, class: 'form-control post-body' %>
+      </div>
+    </div>
+    <div class="col-md-2">
+      <div class="form-group">
+        <h3>Categories</h3>
+        <%= f.collection_check_boxes(:category_ids, Category.where(created_by: current_user).order(name: :asc), :id, :name) do |c| %>
+          <div class="post-categories">
+            <%= c.check_box %>
+            <%= c.label %>
+          </div>
+        <%- end %>
+      </div>
     </div>
   </div>
 
   <div class="form-group">
-    <%= f.submit 'Publish', class: 'btn btn-primary', id: "#{id}-publish-btn" %>
-    <%= f.submit 'Save', class: 'btn btn-default', id: "#{id}-save-btn" %>
+    <%- if editing %>
+      <%= f.submit 'Update', class: 'btn btn-primary', id: "#{id}-update-btn" %>
+      <%- if post.published? %>
+        <%= f.submit 'Unpublish', class: 'btn btn-default', id: "#{id}-unpublish-btn" %>
+      <%- else %>
+        <%= f.submit 'Publish', class: 'btn btn-primary', id: "#{id}-publish-btn" %>
+      <%- end %>
+      <%= link_to 'View Post', show_post_path(post.slug), class: 'btn btn-default' %>
+    <%- else %>
+      <%= f.submit 'Publish', class: 'btn btn-primary', id: "#{id}-publish-btn" %>
+      <%= f.submit 'Save As Draft', class: 'btn btn-default', id: "#{id}-save-btn" %>
+    <%- end %>
   </div>
 <%- end %>
