@@ -50,6 +50,9 @@ GEM
       autoprefixer-rails (>= 5.2.1)
       sass (>= 3.3.4)
     builder (3.2.2)
+    bullet (4.14.10)
+      activesupport (>= 3.0.0)
+      uniform_notifier (~> 1.9.0)
     byebug (8.2.2)
     capybara (2.6.2)
       addressable
@@ -71,8 +74,14 @@ GEM
       execjs
     coffee-script-source (1.10.0)
     concurrent-ruby (1.0.0)
+    daemons (1.2.3)
     database_cleaner (1.5.1)
     debug_inspector (0.0.2)
+    delayed_job (4.1.1)
+      activesupport (>= 3.0, < 5.0)
+    delayed_job_active_record (4.1.0)
+      activerecord (>= 3.0, < 5)
+      delayed_job (>= 3.0, < 5)
     diff-lcs (1.2.5)
     email_validator (1.6.0)
       activemodel
@@ -136,6 +145,8 @@ GEM
       method_source (~> 0.8.1)
       slop (~> 3.4)
     puma (2.15.3)
+    quiet_assets (1.1.0)
+      railties (>= 3.1, < 5.0)
     rack (1.6.4)
     rack-test (0.6.3)
       rack (>= 1.0)
@@ -169,6 +180,7 @@ GEM
       ffi (>= 0.5.0)
     rdoc (4.2.2)
       json (~> 1.4)
+    redcarpet (3.3.4)
     rspec (3.4.0)
       rspec-core (~> 3.4.0)
       rspec-expectations (~> 3.4.0)
@@ -223,6 +235,7 @@ GEM
     uglifier (2.7.2)
       execjs (>= 0.3.0)
       json (>= 1.8.0)
+    uniform_notifier (1.9.0)
     web-console (2.3.0)
       activemodel (>= 4.0)
       binding_of_caller (>= 0.7.2)
@@ -240,18 +253,23 @@ PLATFORMS
 DEPENDENCIES
   active_record_union
   bootstrap-sass
+  bullet
   byebug
   capybara
   clearance
   coffee-rails
+  daemons
   database_cleaner
+  delayed_job_active_record
   factory_girl_rails
   faker
   guard-rspec
   jbuilder (~> 2.0)
   jquery-rails
   puma
+  quiet_assets
   rails (= 4.2.5.1)
+  redcarpet
   rspec-rails
   sass-rails (~> 5.0)
   sdoc (~> 0.4.0)

@@ -10,6 +10,7 @@ describe User do
       it { should have_db_column(:encrypted_password).of_type(:string).  with_options(limit: 128, null: false) }
       it { should have_db_column(:confirmation_token).of_type(:string).  with_options(limit: 128) }
       it { should have_db_column(:remember_token).    of_type(:string).  with_options(limit: 128, null: false) }
+      it { should have_db_column(:name).              of_type(:string).  with_options(null: false, default: '') }
     end
 
     describe 'indexes' do
@@ -29,6 +30,7 @@ describe User do
         it { should respond_to :password }
         it { should respond_to :confirmation_token }
         it { should respond_to :remember_token }
+        it { should respond_to :name }
       end
 
       describe 'validity' do

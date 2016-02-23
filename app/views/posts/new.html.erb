@@ -1,18 +1,6 @@
+<%= provide :title, 'New Post' %>
+
 <div class="new-post">
-  <%= form_for @post, html: { id: 'new-post' } do |f| %>
-    <div class="form-group">
-      <%= f.label :title %>
-      <%= f.text_field :title, class: 'form-control', required: true %>
-    </div>
-
-    <div class="form-group">
-      <%= f.label :body %>
-      <%= f.text_area :body, class: 'form-control' %>
-    </div>
-
-    <div class="form-group">
-      <%= f.submit 'Publish', class: 'btn btn-primary' %>
-      <%= f.submit 'Save', class: 'btn btn-default' %>
-    </div>
-  <%- end %>
+  <h2>New Post</h2>
+  <%= render partial: 'posts/partials/form', locals: { post: @post, id: 'new-post', url: posts_path, editing: false } %>
 </div>

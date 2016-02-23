@@ -35,11 +35,16 @@ gem 'sdoc', '~> 0.4.0', group: :doc
 
 gem 'puma'
 gem 'clearance'
+gem 'redcarpet'
+gem 'daemons'
+gem 'delayed_job_active_record'
+gem 'quiet_assets'
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'byebug'
   gem 'guard-rspec', require: false
+  gem 'bullet'
 end
 
 group :test do

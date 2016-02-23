@@ -5,8 +5,8 @@ feature 'User creates a post', sign_in: true do
     visit new_post_path
 
     within '#new-post' do
-      fill_in 'new_post_title', with: Faker::Lorem.sentence
-      fill_in 'new_post_body', with: Faker::Lorem.body
+      fill_in 'post_title', with: Faker::Lorem.sentence
+      fill_in 'post_body', with: Faker::Lorem.paragraph
     end
     click_button 'new-post-save-btn'
 
@@ -17,8 +17,8 @@ feature 'User creates a post', sign_in: true do
     visit new_post_path
 
     within '#new-post' do
-      fill_in 'new_post_title', with: Faker::Lorem.sentence
-      fill_in 'new_post_body', with: Faker::Lorem.body
+      fill_in 'post_title', with: Faker::Lorem.sentence
+      fill_in 'post_body', with: Faker::Lorem.paragraph
     end
     click_button 'new-post-publish-btn'
 

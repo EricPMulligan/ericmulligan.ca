@@ -1,0 +1,32 @@
+<%= provide :title, @category.name %>
+
+<div id="category-<%= @category.id %>">
+  <article class="category">
+    <header>
+      <h2><%= @category.name %></h2>
+    </header>
+    <content>
+      <%= @category.description %>
+    </content>
+    <footer>
+      <%- if signed_in? %>
+        <div>
+          <%= link_to 'Edit', edit_category_path(@category), id: "edit-category-#{@category.id}-lnk" %> | <%= link_to 'Delete', category_path(@category), method: :delete, id: "delete-category-#{@category.id}-lnk" %>
+        </div>
+      <%- end %>
+    </footer>
+  </article>
+  <div class="associated-posts">
+    <header>
+      <h3>Posts</h3>
+    </header>
+    <content>
+      <%- @category.posts.includes(:categories, :created_by).each do |post| %>
+        <%= render partial: 'posts/partials/post', locals: { post: post, linked: true } %>
+      <%- end %>
+    </content>
+    <footer>
+      <p><%= @category.posts.count %> post(s)</p>
+    </footer>
+  </div>
+</div>

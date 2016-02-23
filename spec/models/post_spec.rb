@@ -35,11 +35,14 @@ describe Post do
         it { should respond_to :published_at }
         it { should respond_to :created_by_id }
         it { should respond_to :created_by }
+        it { should respond_to :categories }
         it { should respond_to :slug }
       end
 
       describe 'associations' do
         it { should belong_to(:created_by).class_name('User') }
+
+        it { should have_and_belong_to_many(:categories).class_name('Category') }
       end
 
       describe 'check validity' do
@@ -49,10 +52,13 @@ describe Post do
       end
 
       describe 'validation' do
-        subject { create(:post) }
+        before(:each) { create(:post) }
 
         it { should validate_presence_of :title }
         it { should validate_presence_of :created_by }
+        it { should validate_presence_of :slug }
+
+        it { should validate_uniqueness_of(:slug).case_insensitive }
       end
 
       describe 'scopes' do
