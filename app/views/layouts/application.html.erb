@@ -7,6 +7,20 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="description" content="<%= yield(:seo_description) %>" />
   <link rel="canonical" href="<%= "http://ericmulligan.ca#{request.original_fullpath}" %>" />
+  <!-- Facebook OpenGraph -->
+  <meta property="og:locale" content="<%= yield(:seo_locale) %>" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="<%= title yield(:title) %>" />
+  <meta property="og:description" content="<%= yield(:seo_description) %>" />
+  <meta property="og:url" content="<%= "http://ericmulligan.ca#{request.original_fullpath}" %>" />
+  <meta property="og:site_name" content="<%= yield(:seo_site_name) %>" />
+  <meta property="fb:admins" content="<%= yield(:fb_admins) %>" />
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="<%= yield(:twitter_card) %>" />
+  <meta name="twitter:description" content="<%= yield(:seo_description) %>" />
+  <meta name="twitter:title" content="<%= title yield(:title) %>" />
+  <meta name="twitter:site" content="<%= yield(:twitter_site) %>" />
+  <meta name="twitter:domain" content="http://ericmulligan.ca" />
   <%= csrf_meta_tags %>
   <%= auto_discovery_link_tag(:rss, "#{request.base_url}/index.rss") %>
 </head>
