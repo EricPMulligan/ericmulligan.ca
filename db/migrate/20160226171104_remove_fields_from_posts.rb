@@ -5,5 +5,6 @@ class RemoveFieldsFromPosts < ActiveRecord::Migration
     remove_column :posts, :seo_locale,    :string
     remove_column :posts, :twitter_card,  :string
     remove_column :posts, :og_type,       :string
+    remove_column :posts, :twitter_site,  :string
   end
 end

@@ -14,7 +14,6 @@ describe Post do
       it { should have_db_column(:slug).           of_type(:string).  with_options(null: false) }
       it { should have_db_column(:seo_title).      of_type(:string) }
       it { should have_db_column(:seo_description).of_type(:string) }
-      it { should have_db_column(:twitter_site).   of_type(:string) }
     end
 
     describe 'indexes' do
@@ -42,7 +41,6 @@ describe Post do
         it { should respond_to :slug }
         it { should respond_to(:seo_title) }
         it { should respond_to(:seo_description) }
-        it { should respond_to(:twitter_site) }
       end
 
       describe 'associations' do

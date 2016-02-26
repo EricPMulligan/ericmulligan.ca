@@ -15,7 +15,7 @@
     <footer class="well well-sm">
       <p>Post created <%= time_ago_in_words(post.created_at) %> ago by <%= author(post.created_by) %>.</p>
       <%- if signed_in? && current_user == post.created_by %>
-        <div><%= link_to 'Edit', edit_post_path(post.slug), id: "edit-post-#{post.id}-lnk" %> | <%= link_to 'Delete', post_path(post), method: :delete, id: "delete-post-#{post.id}-lnk" %></div>
+        <div><%= link_to 'Edit', edit_post_path(post.slug), id: "edit-post-#{post.id}-lnk", rel: 'nofollow' %> | <%= link_to 'Delete', post_path(post), method: :delete, id: "delete-post-#{post.id}-lnk", rel: 'nofollow' %></div>
       <%- end %>
       <div class="categories">
         <%- post.categories.each do |category| %>

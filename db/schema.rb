@@ -76,7 +76,6 @@ ActiveRecord::Schema.define(version: 20160226171104) do
     t.datetime "updated_at",                      null: false
     t.string   "seo_title"
     t.string   "seo_description"
-    t.string   "twitter_site"
   end
 
   add_index "posts", ["created_at"], name: "index_posts_on_created_at"
