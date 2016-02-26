@@ -10,7 +10,8 @@ feature 'User fills out SEO fields:', sign_in: true do
       fill_in 'post_seo_title', with: Faker::Lorem.sentence
       fill_in 'post_seo_description', with: Faker::Lorem.sentence
       fill_in 'post_og_type', with: 'website'
-      fill_in 'post_twitter_card', with: ''
+      fill_in 'post_twitter_card', with: 'website'
+
     end
   end
 end
