@@ -76,7 +76,6 @@ ActiveRecord::Schema.define(version: 20160226171104) do
     t.datetime "updated_at",                      null: false
     t.string   "seo_title"
     t.string   "seo_description"
-    t.string   "seo_type"
     t.string   "twitter_site"
   end
 
