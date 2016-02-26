@@ -14,10 +14,7 @@ describe Post do
       it { should have_db_column(:slug).           of_type(:string).  with_options(null: false) }
       it { should have_db_column(:seo_title).      of_type(:string) }
       it { should have_db_column(:seo_description).of_type(:string) }
-      it { should have_db_column(:seo_locale).     of_type(:string) }
-      it { should have_db_column(:seo_site_name).  of_type(:string) }
       it { should have_db_column(:og_type).        of_type(:string) }
-      it { should have_db_column(:fb_admins).      of_type(:string) }
       it { should have_db_column(:twitter_card).   of_type(:string) }
       it { should have_db_column(:twitter_site).   of_type(:string) }
     end
