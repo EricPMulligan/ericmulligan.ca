@@ -1,4 +1,4 @@
-class Post < ActiveRecord::Base
+class Post < ApplicationRecord
   before_validation :update_slug_if_title_changed
 
   scope :latest,    ->{ order(created_at: :desc) }
