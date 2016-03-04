@@ -58,4 +58,3 @@ group :development do
   gem 'capistrano3-delayed-job'
   gem 'capistrano-rbenv'
 end
-
