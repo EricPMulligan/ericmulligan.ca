@@ -25,14 +25,14 @@
               <li class="<%= current_page?(controller: '/categories', action: 'index') ? 'active' : '' %>"><%= link_to 'Categories', categories_path %></li>
               <li class="divider" role="separator"></li>
               <li class="dropdown-header">Create New</li>
-              <li class="<%= current_page?(controller: '/posts', action: 'new') ? 'active' : '' %>"><%= link_to 'Posts', new_post_path %></li>
-              <li class="<%= current_page?(controller: '/categories', action: 'new') ? 'active' : '' %>"><%= link_to 'Categories', new_category_path %></li>
+              <li class="<%= current_page?(controller: '/posts', action: 'new') ? 'active' : '' %>"><%= link_to 'Posts', new_post_path, rel: 'nofollow' %></li>
+              <li class="<%= current_page?(controller: '/categories', action: 'new') ? 'active' : '' %>"><%= link_to 'Categories', new_category_path, rel: 'nofollow' %></li>
               <li class="divider" role="separator"></li>
-              <li><%= link_to t('.sign_out'), sign_out_path, method: :delete, id: 'sign-out-lnk' %></li>
+              <li><%= link_to t('.sign_out'), sign_out_path, method: :delete, id: 'sign-out-lnk', rel: 'nofollow' %></li>
             </ul>
           </li>
         <% else -%>
-          <li class="<%= current_page?(controller: 'clearance/sessions', action: 'new') ? 'active' : '' %>"><%= link_to t('.sign_in'), sign_in_path %></li>
+          <li class="<%= current_page?(controller: 'clearance/sessions', action: 'new') ? 'active' : '' %>"><%= link_to t('.sign_in'), sign_in_path, rel: 'nofollow' %></li>
         <% end -%>
         </li>
       </ul>

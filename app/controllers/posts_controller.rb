@@ -128,6 +128,8 @@ class PostsController < ApplicationController
     params.require(:post).permit(
       :title,
       :body,
+      :seo_title,
+      :seo_description,
       :category_ids => []
     )
   end
