@@ -1,5 +1,5 @@
 <%= provide :title, @post.title %>
-<%= provide :seo_title, @post.seo_title %>
+<%= provide :seo_title, @post.seo_title.present? ? @post.seo_title : @post.title %>
 <%= provide :seo_description, @post.seo_description %>
 <%= render partial: 'posts/partials/post', locals: { post: @post, linked: false } %>
 
