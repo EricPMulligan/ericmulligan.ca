@@ -34,6 +34,9 @@ set :log_level, :error
 # Default value for keep_releases is 5
 # set :keep_releases, 5
 
+set :rbenv_type, :user
+set :rbenv_ruby, File.read('.ruby-version').strip
+
 namespace :deploy do
 
   after :restart, :clear_cache do
