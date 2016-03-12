@@ -1,4 +1,4 @@
-class User < ActiveRecord::Base
+class User < ApplicationRecord
   include Clearance::User
 
   validates :remember_token,     length: { maximum: 128 }

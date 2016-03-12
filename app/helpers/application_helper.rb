@@ -26,9 +26,9 @@ module ApplicationHelper
 
   def title(name = nil)
     if name.present?
-      "#{name} - Eric Mulligan's Blog"
+      "#{name} - Eric Mulligan's Blog".html_safe
     else
-      "Eric Mulligan's Blog"
+      "Eric Mulligan's Blog".html_safe
     end
   end
 end

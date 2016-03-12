@@ -7,23 +7,23 @@
         <%- else %>
           <%= post.title %><%= ' (Unpublished)' unless post.published? %>
         <%- end %>
+        <%- post.categories.each_with_index do |category, index| %>
+          <%= link_to category_path(category) do %>
+            <span class="label label-default"><%= category.name %></span>
+          <%- end %>
+        <%- end %>
       </h2>
     </header>
     <section>
       <%= mark_it_down(post.body).html_safe %>
     </section>
     <footer class="well well-sm">
-      <p>Post created <%= time_ago_in_words(post.created_at) %> ago by <%= author(post.created_by) %>.</p>
+      <p class="categories">
+      </p>
       <%- if signed_in? && current_user == post.created_by %>
-        <div><%= link_to 'Edit', edit_post_path(post.slug), id: "edit-post-#{post.id}-lnk" %> | <%= link_to 'Delete', post_path(post), method: :delete, id: "delete-post-#{post.id}-lnk" %></div>
+        <p><%= link_to 'Edit', edit_post_path(post.slug), id: "edit-post-#{post.id}-lnk", rel: 'nofollow' %> | <%= link_to 'Delete', post_path(post), method: :delete, id: "delete-post-#{post.id}-lnk", rel: 'nofollow' %></p>
       <%- end %>
-      <div class="categories">
-        <%- post.categories.each do |category| %>
-          <%= link_to category_path(category) do %>
-            <span class="label label-default"><%= category.name %></span>
-          <%- end %>
-        <%- end %>
-      </div>
+      <p>Post created <%= time_ago_in_words(post.created_at) %> ago by <%= author(post.created_by) %>.</p>
     </footer>
   </article>
 </div>

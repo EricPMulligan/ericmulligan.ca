@@ -1,4 +1,4 @@
-class Category < ActiveRecord::Base
+class Category < ApplicationRecord
   before_validation :update_slug_if_name_changed
 
   belongs_to :created_by, class_name: 'User'

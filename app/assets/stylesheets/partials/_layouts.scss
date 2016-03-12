@@ -1,4 +1,5 @@
 body {
+  background-color: #eee;
   font-family: 'Roboto', Arial, sans-serif;
 }
 
@@ -28,4 +29,42 @@ footer p {
 
 .form-group h3 {
   margin-top: 0;
+}
+
+.post {
+  background-color: white;
+  border: 1px solid rgba(#000, 0.3);
+  border-radius: 2px;
+  //@include box-shadow(#666 2px 2px 2px);
+  margin: 20px 0;
+  padding: 15px;
+
+  &:first-child {
+    margin: 0 0 20px;
+  }
+
+  footer {
+    p {
+      margin-bottom: 5px;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+    }
+  }
+
+  header {
+    h2 {
+      display: inline-block;
+      margin: 0 0 20px;
+    }
+  }
+
+  .well {
+    margin-bottom: 0;
+  }
+
+  .well-sm {
+    border-radius: 0;
+  }
 }

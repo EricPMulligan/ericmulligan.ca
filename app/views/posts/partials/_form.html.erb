@@ -10,10 +10,21 @@
         <%= f.label :body %>
         <%= f.text_area :body, class: 'form-control post-body' %>
       </div>
+
+      <h3>SEO</h3>
+      <div class="form-group">
+        <%= f.label :seo_title, 'Title' %>
+        <%= f.text_field :seo_title, class: 'form-control' %>
+      </div>
+
+      <div class="form-group">
+        <%= f.label :seo_description, 'Description' %>
+        <%= f.text_area :seo_description, class: 'form-control post-seo-description' %>
+      </div>
     </div>
     <div class="col-md-2">
+      <h3>Categories</h3>
       <div class="form-group">
-        <h3>Categories</h3>
         <%= f.collection_check_boxes(:category_ids, Category.where(created_by: current_user).order(name: :asc), :id, :name) do |c| %>
           <div class="post-categories">
             <%= c.check_box %>

@@ -3,15 +3,17 @@ require 'rails_helper'
 describe Post do
   describe 'database table "posts"' do
     describe 'columns' do
-      it { should have_db_column(:id).           of_type(:integer) }
-      it { should have_db_column(:created_at).   of_type(:datetime).with_options(null: false) }
-      it { should have_db_column(:updated_at).   of_type(:datetime).with_options(null: false) }
-      it { should have_db_column(:title).        of_type(:string).  with_options(null: false) }
-      it { should have_db_column(:body).         of_type(:text).    with_options(null: false, default: '') }
-      it { should have_db_column(:published).    of_type(:boolean). with_options(null: false, default: false) }
-      it { should have_db_column(:published_at). of_type(:datetime) }
-      it { should have_db_column(:created_by_id).of_type(:integer). with_options(null: false) }
-      it { should have_db_column(:slug).         of_type(:string).  with_options(null: false) }
+      it { should have_db_column(:id).             of_type(:integer) }
+      it { should have_db_column(:created_at).     of_type(:datetime).with_options(null: false) }
+      it { should have_db_column(:updated_at).     of_type(:datetime).with_options(null: false) }
+      it { should have_db_column(:title).          of_type(:string).  with_options(null: false) }
+      it { should have_db_column(:body).           of_type(:text).    with_options(null: false, default: '') }
+      it { should have_db_column(:published).      of_type(:boolean). with_options(null: false, default: false) }
+      it { should have_db_column(:published_at).   of_type(:datetime) }
+      it { should have_db_column(:created_by_id).  of_type(:integer). with_options(null: false) }
+      it { should have_db_column(:slug).           of_type(:string).  with_options(null: false) }
+      it { should have_db_column(:seo_title).      of_type(:string) }
+      it { should have_db_column(:seo_description).of_type(:string) }
     end
 
     describe 'indexes' do
@@ -37,6 +39,8 @@ describe Post do
         it { should respond_to :created_by }
         it { should respond_to :categories }
         it { should respond_to :slug }
+        it { should respond_to(:seo_title) }
+        it { should respond_to(:seo_description) }
       end
 
       describe 'associations' do

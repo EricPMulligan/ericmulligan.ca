@@ -1,4 +1,4 @@
-class Contact < ActiveRecord::Base
+class Contact < ApplicationRecord
   belongs_to :read_by, class_name: 'User'
 
   scope :unread, ->{ where(read_at: nil) }
