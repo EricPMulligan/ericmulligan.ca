@@ -8,7 +8,7 @@ set :repo_url, 'git@github.com:EricPMulligan/ericmulligan.ca.git'
 # ask :branch, `git rev-parse --abbrev-ref HEAD`.chomp
 
 # Default deploy_to directory is /var/www/my_app_name
-set :deploy_to, '/var/www/ericmulligan.ca'
+set :deploy_to, '/home/ericmulligan/www'
 
 # Default value for :scm is :git
 # set :scm, :git
@@ -17,7 +17,7 @@ set :deploy_to, '/var/www/ericmulligan.ca'
 # set :format, :pretty
 
 # Default value for :log_level is :debug
-# set :log_level, :debug
+set :log_level, :error
 
 # Default value for :pty is false
 # set :pty, true
