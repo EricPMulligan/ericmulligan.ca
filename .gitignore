@@ -14,8 +14,5 @@
 # Ignore all logfiles and tempfiles.
 /log/*
 !/log/.keep
-/tmp/cache
-/tmp/sessions
-/tmp/sockets
-/tmp/pids/*.pid
+/tmp
 /.idea

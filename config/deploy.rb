@@ -39,7 +39,7 @@ set :rbenv_ruby, File.read('.ruby-version').strip
 
 # Number of delayed_job workers
 # default value: 1
-set :delayed_job_workers, 2
+# set :delayed_job_workers, 2
 
 # String to be prefixed to worker process names
 # This feature allows a prefix name to be placed in front of the process.
@@ -49,14 +49,13 @@ set :delayed_job_prefix, :reports
 # Delayed_job queue or queues
 # Set the --queue or --queues option to work from a particular queue.
 # default value: nil
-set :delayed_job_queues, ['mailer','tracking']
+set :delayed_job_queues, ['mailer']
 
 # Specify different pools
 # You can use this option multiple times to start different numbers of workers for different queues.
 # default value: nil
 set :delayed_job_pools, {
   :mailer => 2,
-  :tracking => 1,
   :* => 2
 }
 
@@ -88,7 +87,7 @@ set :puma_default_control_app, "unix://#{shared_path}/tmp/sockets/pumactl.sock"
 set :puma_conf, "#{shared_path}/puma.rb"
 set :puma_access_log, "#{shared_path}/log/puma_access.log"
 set :puma_error_log, "#{shared_path}/log/puma_error.log"
-set :puma_role, :web
+set :puma_role, :app
 set :puma_env, fetch(:rack_env, fetch(:rails_env, 'production'))
 set :puma_threads, [0, 16]
 set :puma_workers, 0
