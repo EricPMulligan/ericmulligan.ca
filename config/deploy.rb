@@ -75,6 +75,8 @@ set :delayed_job_pools, {
 ### Set the location of the delayed_job pid file
 set :delayed_job_pid_dir, '/tmp'
 
+set :puma_nginx, :app
+
 namespace :deploy do
 
   after :restart, :clear_cache do
