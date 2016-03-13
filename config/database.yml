@@ -25,5 +25,5 @@ production:
   encoding: unicode
   database: ericmulligan
   pool: 5
-  username: ericmulligan
-  password:
+  username: <%= ENV['ERICMULLIGAN_DB_USER'] %>
+  password: <%= ENV['ERICMULLIGAN_DB_PASSWORD'] %>
