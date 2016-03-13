@@ -72,7 +72,8 @@ set :delayed_job_pools, {
 # set :delayed_log_dir, 'path_to_logfile'
 
 ### Set the location of the delayed_job pid file
-set :delayed_job_pid_dir, '/tmp'
+set :delayed_job_pid_dir, "#{shared_path}/tmp/pids"
+set :delayed_log_dir, "#{shared_path}/log"
 
 set :nginx_sites_available_path, '/etc/nginx/sites-available'
 set :nginx_sites_enabled_path, '/etc/nginx/sites-enabled'
@@ -106,5 +107,7 @@ namespace :deploy do
       # end
     end
   end
+
+  after :updated, 'puma:restart'
 
 end
