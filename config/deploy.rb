@@ -55,8 +55,8 @@ set :delayed_job_queues, ['mailer']
 # You can use this option multiple times to start different numbers of workers for different queues.
 # default value: nil
 set :delayed_job_pools, {
-  :mailer => 2,
-  :* => 2
+  :mailer => 1
+  # :* => 2
 }
 
 # Set the roles where the delayed_job process should be started
