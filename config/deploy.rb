@@ -17,7 +17,7 @@ set :deploy_to, '/home/ericmulligan/www'
 # set :format, :pretty
 
 # Default value for :log_level is :debug
-# set :log_level, :error
+set :log_level, :info
 
 # Default value for :pty is false
 # set :pty, true
