@@ -27,6 +27,8 @@ gem 'daemons'
 gem 'delayed_job_active_record'
 gem 'quiet_assets'
 gem 'newrelic_rpm'
+gem 'sitemap_generator'
+gem 'whenever', require: false
 
 group :production do
   gem 'pg'
