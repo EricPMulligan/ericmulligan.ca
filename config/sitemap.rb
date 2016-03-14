@@ -1,5 +1,6 @@
 # Set the host name for URL creation
 SitemapGenerator::Sitemap.default_host = 'http://ericmulligan.ca'
+SitemapGenerator::Sitemap.sitemaps_path = 'system/'
 
 SitemapGenerator::Sitemap.create do
   add about_path

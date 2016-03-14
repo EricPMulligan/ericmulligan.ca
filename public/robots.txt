@@ -3,4 +3,4 @@
 # To ban all spiders from the entire site uncomment the next two lines:
 User-agent: *
 Disallow: /assets/
-Sitemap: http://ericmulligan.ca/sitemap/sitemap.xml.gz
+Sitemap: http://ericmulligan.ca/system/sitemap.xml.gz
