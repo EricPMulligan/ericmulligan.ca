@@ -26,6 +26,7 @@ gem 'redcarpet'
 gem 'daemons'
 gem 'delayed_job_active_record'
 gem 'quiet_assets'
+gem 'newrelic_rpm'
 
 group :production do
   gem 'pg'
