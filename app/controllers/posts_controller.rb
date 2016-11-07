@@ -105,7 +105,7 @@ class PostsController < ApplicationController
   end
 
   def find_post_by_slug
-    @post = Post.find_by!(slug: params[:slug])
+    @post = Post.includes(:categories).find_by!(slug: params[:slug])
   end
 
   def find_post_by_id
