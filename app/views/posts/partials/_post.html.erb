@@ -2,11 +2,11 @@
   <article id="post-<%= post.id %>">
     <header>
       <h2>
-        <%- if linked %>
+        <% if linked %>
           <%= link_to "#{post.title}#{' (Unpublished)' unless post.published?}", show_post_path(post.slug) %>
-        <%- else %>
+        <% else %>
           <%= post.title %><%= ' (Unpublished)' unless post.published? %>
-        <%- end %>
+        <% end %>
       </h2>
     </header>
     <section>
@@ -14,15 +14,15 @@
     </section>
     <footer class="well well-sm">
       <p class="categories">
-        <%- post.categories.each do |category| %>
+        <% post.categories.each do |category| %>
           <%= link_to category_path(category) do %>
             <span class="label label-default"><%= category.name %></span>
-          <%- end %>
-        <%- end %>
+          <% end %>
+        <% end %>
       </p>
-      <%- if signed_in? && current_user == post.created_by %>
+      <% if signed_in? && current_user == post.created_by %>
         <p><%= link_to 'Edit', edit_post_path(post.slug), id: "edit-post-#{post.id}-lnk", rel: 'nofollow' %> | <%= link_to 'Delete', post_path(post), method: :delete, id: "delete-post-#{post.id}-lnk", rel: 'nofollow' %></p>
-      <%- end %>
+      <% end %>
       <p>Post created <%= time_ago_in_words(post.created_at) %> ago by <%= author(post.created_by) %>.</p>
     </footer>
   </article>

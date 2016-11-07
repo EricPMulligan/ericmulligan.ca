@@ -2,7 +2,7 @@ class PostsController < ApplicationController
   before_action :require_login,     only: [:new, :create, :edit, :update, :destroy]
   before_action :find_post_by_slug, only: [:show, :edit]
   before_action :find_post_by_id,   only: [:update, :destroy]
-  before_action :check_ownership, only: [:edit, :update, :destroy]
+  before_action :check_ownership,   only: [:edit, :update, :destroy]
 
   rescue_from ActiveRecord::RecordNotFound, with: :record_not_found
 

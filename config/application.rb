@@ -25,6 +25,8 @@ module EricmulliganCa
 
     config.active_job.queue_adapter = :delayed_job
 
+    config.generators.test_frameworks = :rspec
+
     # Configures Email Submissions
     config.action_mailer.delivery_method = :smtp
     config.action_mailer.smtp_settings = {

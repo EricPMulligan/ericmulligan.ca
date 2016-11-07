@@ -2,7 +2,7 @@ source 'https://rubygems.org'
 
 ruby '2.3.1'
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
-gem 'rails', '4.2.6'
+gem 'rails', '~> 5.0'
 # Use SCSS for stylesheets
 gem 'sass-rails', '~> 5.0'
 # Use Uglifier as compressor for JavaScript assets
@@ -25,7 +25,6 @@ gem 'clearance'
 gem 'redcarpet'
 gem 'daemons'
 gem 'delayed_job_active_record'
-gem 'quiet_assets'
 gem 'newrelic_rpm'
 gem 'sitemap_generator'
 gem 'whenever', require: false
@@ -43,6 +42,7 @@ end
 
 group :test do
   gem 'rspec-rails'
+  gem 'rails-controller-testing'
   gem 'shoulda-matchers', require: false
   gem 'database_cleaner'
   gem 'factory_girl_rails'
