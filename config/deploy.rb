@@ -6,6 +6,7 @@ set :repo_url, 'git@github.com:EricPMulligan/ericmulligan.ca.git'
 
 # Default branch is :master
 # ask :branch, `git rev-parse --abbrev-ref HEAD`.chomp
+set :branch, 'release'
 
 # Default deploy_to directory is /var/www/my_app_name
 set :deploy_to, '/home/ericmulligan/www'
