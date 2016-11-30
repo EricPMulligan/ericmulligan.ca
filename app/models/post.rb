@@ -6,7 +6,8 @@ class Post < ApplicationRecord
 
   belongs_to :created_by, class_name: 'User'
 
-  has_and_belongs_to_many :categories, class_name: 'Category'
+  has_many :categories_posts
+  has_many :categories, through: :categories_posts
 
   validates :created_by, presence: true
   validates :title,      presence: true

@@ -109,7 +109,7 @@ class PostsController < ApplicationController
   end
 
   def find_post_by_id
-    @post = Post.find(params[:id])
+    @post = Post.includes(:created_by).find(params[:id])
   end
 
   def record_not_found

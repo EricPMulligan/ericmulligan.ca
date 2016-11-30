@@ -3,7 +3,8 @@ class Category < ApplicationRecord
 
   belongs_to :created_by, class_name: 'User'
 
-  has_and_belongs_to_many :posts, class_name: 'Post'
+  has_many :categories_posts
+  has_many :posts, through: :categories_posts
 
   validates :name,       presence: true
   validates :created_by, presence: true
