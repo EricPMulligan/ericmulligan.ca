@@ -108,6 +108,6 @@ namespace :deploy do
     end
   end
 
-  after :published, 'puma:restart'
+  # after :published, 'puma:restart'
 
 end
