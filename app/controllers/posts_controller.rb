@@ -91,6 +91,8 @@ class PostsController < ApplicationController
 
   # Delete /posts/:id
   def destroy
+    @post.categories_posts.destroy_all unless @post.categories_posts.empty?
+
     if @post.destroy
       redirect_to root_path, notice: 'Your post has been deleted.'
     else
