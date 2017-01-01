@@ -3,9 +3,13 @@ body {
   font-family: 'Roboto', Arial, sans-serif;
 }
 
+ul,
+p {
+  font-size: 16px;
+}
+
 p {
   margin-bottom: 20px;
-  font-size: 20px;
 }
 
 h2 {
@@ -35,7 +39,6 @@ footer p {
   background-color: white;
   border: 1px solid rgba(#000, 0.3);
   border-radius: 2px;
-  //@include box-shadow(#666 2px 2px 2px);
   margin: 20px 0;
   padding: 15px;
 
