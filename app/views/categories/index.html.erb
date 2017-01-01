@@ -7,10 +7,10 @@
   <content>
     <%- @categories.each do |category| %>
       <div class="category">
-        <h2><%= link_to category.name, category_path(category) %></h2>
+        <h2><%= link_to category.name, category_path(category.slug) %></h2>
         <p><%= category.posts.count %> post(s)</p>
         <%- if category.created_by == current_user %>
-          <div><%= link_to 'Edit', edit_category_path(category), id: "edit-category-#{category.id}-lnk" %> | <%= link_to 'Delete', category_path(category), method: :delete, id: "delete-category-#{category.id}-lnk" %></div>
+          <div><%= link_to 'Edit', edit_category_path(category.slug), id: "edit-category-#{category.id}-lnk" %> | <%= link_to 'Delete', category_path(category.slug), method: :delete, id: "delete-category-#{category.id}-lnk" %></div>
         <%- end %>
       </div>
     <%- end %>

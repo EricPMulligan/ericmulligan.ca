@@ -12,7 +12,7 @@
     <footer>
       <%- if signed_in? %>
         <div>
-          <%= link_to 'Edit', edit_category_path(@category), id: "edit-category-#{@category.id}-lnk" %> | <%= link_to 'Delete', category_path(@category), method: :delete, id: "delete-category-#{@category.id}-lnk" %>
+          <%= link_to 'Edit', edit_category_path(@category.slug), id: "edit-category-#{@category.id}-lnk" %> | <%= link_to 'Delete', category_path(@category.slug), method: :delete, id: "delete-category-#{@category.id}-lnk" %>
         </div>
       <%- end %>
     </footer>

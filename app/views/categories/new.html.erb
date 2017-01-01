@@ -1,5 +1,7 @@
 <%= provide :title, 'New Category' %>
 
 <section class="new-category">
-  <%= render partial: 'categories/partials/form', locals: { category: @category, id: 'new-category' } %>
+  <%= form_for @category, html: { id: 'new-category' } do |f| %>
+    <%= render partial: 'categories/partials/form', locals: { f: f, id: 'new-category' } %>
+  <% end %>
 </section>

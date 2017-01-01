@@ -1,8 +1,6 @@
 class PostsController < ApplicationController
   before_action :require_login,     only: [:new, :create, :edit, :update, :destroy]
   before_action :find_post_by_slug, only: [:show, :edit]
-  before_action :find_post_by_id,   only: [:update, :destroy]
-  before_action :check_ownership,   only: [:edit, :update, :destroy]
 
   rescue_from ActiveRecord::RecordNotFound, with: :record_not_found
 
@@ -59,11 +57,16 @@ class PostsController < ApplicationController
 
   # GET /:slug/edit
   def edit
+    return redirect_back fallback_location: posts_path, alert: 'You are not the author of the post.' unless @post.created_by == current_user
   end
 
   # PUT /posts/:id
   # PATCH /posts/:id
   def update
+    @post = Post.includes(:categories).find(params[:id])
+
+    return redirect_back fallback_location: posts_path, alert: 'You are not the author of the post.' unless @post.created_by == current_user
+
     post_hash = post_params
     message = case params[:commit]
                 when 'Publish'
@@ -91,6 +94,10 @@ class PostsController < ApplicationController
 
   # Delete /posts/:id
   def destroy
+    @post = Post.find(params[:id])
+
+    return redirect_back fallback_location: posts_path, alert: 'You are not the author of the post.' unless @post.created_by == current_user
+
     @post.categories_posts.destroy_all unless @post.categories_posts.empty?
 
     if @post.destroy
@@ -102,16 +109,8 @@ class PostsController < ApplicationController
 
   private
 
-  def check_ownership
-    redirect_to :back, alert: 'You are not the author of the post.' unless @post.created_by == current_user
-  end
-
   def find_post_by_slug
-    @post = Post.includes(:categories).find_by!(slug: params[:slug])
-  end
-
-  def find_post_by_id
-    @post = Post.includes(:created_by).find(params[:id])
+    @post = Post.find_by!(slug: params[:slug])
   end
 
   def record_not_found

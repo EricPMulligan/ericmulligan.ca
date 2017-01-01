@@ -3,7 +3,8 @@ require 'rails_helper'
 describe PostsController do
   describe 'GET #index' do
     context 'when the user is signed in' do
-      before(:each) { sign_in_as create(:user) }
+      let(:user) { create(:user) }
+      before(:each) { sign_in_as user }
 
       context 'when under 10 published posts exists' do
         before(:each) do
@@ -36,7 +37,7 @@ describe PostsController do
         context 'when accessing the second page' do
           before(:each) do
             @posts = Post.latest.published.paginate(page: 2, per_page: 10)
-            get :index, page: 2
+            get :index, params: { page: 2 }
           end
 
           it { should respond_with :ok }
@@ -70,7 +71,7 @@ describe PostsController do
 
         context 'when they were created by the same user' do
           before(:each) do
-            @posts = create_list(:post, 2, published: false, created_by: @controller.current_user)
+            @posts = create_list(:post, 2, published: false, created_by: user)
             get :index
           end
 
@@ -114,7 +115,7 @@ describe PostsController do
         context 'when accessing the second page' do
           before(:each) do
             @posts = Post.latest.published.paginate(page: 2, per_page: 10)
-            get :index, page: 2
+            get :index, params: { page: 2 }
           end
 
           it { should respond_with :ok }
@@ -138,7 +139,7 @@ describe PostsController do
   describe 'GET #index_rss' do
     before(:each) do
       @posts = create_list(:published_post, 5)
-      get :index_rss, format: 'rss'
+      get :index_rss, params: { format: 'rss' }
     end
 
     it { should respond_with :ok }
@@ -152,7 +153,7 @@ describe PostsController do
       context 'when the post is published' do
         before(:each) do
           @post = create(:post, published: true)
-          get :show, slug: @post.slug
+          get :show, params: { slug: @post.slug }
         end
 
         it { should respond_with :ok }
@@ -171,7 +172,7 @@ describe PostsController do
           context 'when the user is the author of the post' do
             before(:each) do
               @post = create(:post, published: false, created_by: @user)
-              get :show, slug: @post.slug
+              get :show, params: { slug: @post.slug }
             end
 
             it { should respond_with :ok }
@@ -183,7 +184,7 @@ describe PostsController do
           context 'when the user is not the author of the post' do
             before(:each) do
               post = create(:post, published: false)
-              get :show, slug: post.slug
+              get :show, params: { slug: post.slug }
             end
 
             it { should respond_with :redirect }
@@ -195,7 +196,7 @@ describe PostsController do
         context 'when the user is not signed in' do
           before(:each) do
             post = create(:post, published: false)
-            get :show, slug: post.slug
+            get :show, params: { slug: post.slug }
           end
 
           it { should respond_with :redirect }
@@ -206,7 +207,7 @@ describe PostsController do
     end
 
     context 'when the post does not exist' do
-      before(:each) { get :show, slug: 'blah' }
+      before(:each) { get :show, params: { slug: 'blah' } }
 
       it { should respond_with :redirect }
       it { should redirect_to root_path }
@@ -238,7 +239,8 @@ describe PostsController do
 
   describe 'POST #create' do
     context 'when the user is signed in' do
-      before(:each) { sign_in_as create(:user) }
+      let(:user) { create(:user) }
+      before(:each) { sign_in_as user }
 
       context 'when the user attempts to publish the post' do
         context 'when not entering the title' do
@@ -246,7 +248,7 @@ describe PostsController do
             new_post         = {}
             new_post[:title] = ''
             new_post[:body]  = Faker::Lorem.paragraph
-            post :create, post: new_post, commit: 'Publish'
+            post :create, params: { post: new_post, commit: 'Publish' }
           end
 
           it { should respond_with :ok }
@@ -259,7 +261,7 @@ describe PostsController do
           context 'on the same day' do
             before(:each) do
               other_post = create(:post)
-              post :create, post: { title: other_post.title, body: Faker::Lorem.paragraph }, commit: 'Publish'
+              post :create, params: { post: { title: other_post.title, body: Faker::Lorem.paragraph }, commit: 'Publish' }
             end
 
             it { should respond_with :ok }
@@ -271,7 +273,7 @@ describe PostsController do
           context 'not on the same day' do
             before(:each) do
               other_post = create(:post, created_at: Faker::Date.between(2.years.ago, Date.today))
-              post :create, post: { title: other_post.title, body: Faker::Lorem.paragraph }, commit: 'Publish'
+              post :create, params: { post: { title: other_post.title, body: Faker::Lorem.paragraph }, commit: 'Publish' }
             end
 
             it { should respond_with :redirect }
@@ -283,7 +285,7 @@ describe PostsController do
         context 'when entering a unique title' do
           before(:each) do
             create(:post)
-            post :create, post: { title: Faker::Lorem.sentence, body: Faker::Lorem.paragraph }, commit: 'Publish'
+            post :create, params: { post: { title: Faker::Lorem.sentence, body: Faker::Lorem.paragraph }, commit: 'Publish' }
           end
 
           it { should respond_with :redirect }
@@ -293,8 +295,8 @@ describe PostsController do
 
         context 'when checking a category' do
           before(:each) do
-            categories = create_list(:category, 5, created_by: @controller.current_user)
-            post :create, post: { title: Faker::Lorem.sentence, body: Faker::Lorem.paragraph, category_ids: [categories[2].id] }, commit: 'Publish'
+            categories = create_list(:category, 5, created_by: user)
+            post :create, params: { post: { title: Faker::Lorem.sentence, body: Faker::Lorem.paragraph, category_ids: [categories[2].id] }, commit: 'Publish' }
           end
 
           it { should respond_with :redirect }
@@ -305,8 +307,8 @@ describe PostsController do
 
         context 'when checking multiple categories' do
           before(:each) do
-            categories = create_list(:category, 5, created_by: @controller.current_user)
-            post :create, post: { title: Faker::Lorem.sentence, body: Faker::Lorem.paragraph, category_ids: [categories[2].id, categories[4].id] }, commit: 'Publish'
+            categories = create_list(:category, 5, created_by: user)
+            post :create, params: { post: { title: Faker::Lorem.sentence, body: Faker::Lorem.paragraph, category_ids: [categories[2].id, categories[4].id] }, commit: 'Publish' }
           end
 
           it { should respond_with :redirect }
@@ -322,7 +324,7 @@ describe PostsController do
             new_post         = {}
             new_post[:title] = ''
             new_post[:body]  = Faker::Lorem.paragraph
-            post :create, post: new_post, commit: 'Save As Draft'
+            post :create, params: { post: new_post, commit: 'Save As Draft' }
           end
 
           it { should respond_with :ok }
@@ -335,7 +337,7 @@ describe PostsController do
           context 'on the same day' do
             before(:each) do
               other_post = create(:post)
-              post :create, post: { title: other_post.title, body: Faker::Lorem.paragraph }, commit: 'Save As Draft'
+              post :create, params: { post: { title: other_post.title, body: Faker::Lorem.paragraph }, commit: 'Save As Draft' }
             end
 
             it { should respond_with :ok }
@@ -347,7 +349,7 @@ describe PostsController do
           context 'not on the same day' do
             before(:each) do
               other_post = create(:post, created_at: Faker::Date.between(2.years.ago, Date.today))
-              post :create, post: { title: other_post.title, body: Faker::Lorem.paragraph }, commit: 'Save As Draft'
+              post :create, params: { post: { title: other_post.title, body: Faker::Lorem.paragraph }, commit: 'Save As Draft' }
             end
 
             it { should respond_with :redirect }
@@ -359,7 +361,7 @@ describe PostsController do
         context 'when entering a unique title' do
           before(:each) do
             create(:post)
-            post :create, post: { title: Faker::Lorem.sentence, body: Faker::Lorem.paragraph }, commit: 'Save As Draft'
+            post :create, params: { post: { title: Faker::Lorem.sentence, body: Faker::Lorem.paragraph }, commit: 'Save As Draft' }
           end
 
           it { should respond_with :redirect }
@@ -369,8 +371,8 @@ describe PostsController do
 
         context 'when checking a category' do
           before(:each) do
-            categories = create_list(:category, 5, created_by: @controller.current_user)
-            post :create, post: { title: Faker::Lorem.sentence, body: Faker::Lorem.paragraph, category_ids: [categories[2].id] }, commit: 'Save As Draft'
+            categories = create_list(:category, 5, created_by: user)
+            post :create, params: { post: { title: Faker::Lorem.sentence, body: Faker::Lorem.paragraph, category_ids: [categories[2].id] }, commit: 'Save As Draft' }
           end
 
           it { should respond_with :redirect }
@@ -381,8 +383,8 @@ describe PostsController do
 
         context 'when checking multiple categories' do
           before(:each) do
-            categories = create_list(:category, 5, created_by: @controller.current_user)
-            post :create, post: { title: Faker::Lorem.sentence, body: Faker::Lorem.paragraph, category_ids: [categories[2].id, categories[4].id] }, commit: 'Save As Draft'
+            categories = create_list(:category, 5, created_by: user)
+            post :create, params: { post: { title: Faker::Lorem.sentence, body: Faker::Lorem.paragraph, category_ids: [categories[2].id, categories[4].id] }, commit: 'Save As Draft' }
           end
 
           it { should respond_with :redirect }
@@ -395,7 +397,7 @@ describe PostsController do
 
     describe 'when the user is not signed in' do
       before(:each) do
-        post :create, post: { title: Faker::Lorem.sentence, body: Faker::Lorem.paragraph }, commit: 'Publish'
+        post :create, params: { post: { title: Faker::Lorem.sentence, body: Faker::Lorem.paragraph }, commit: 'Publish' }
       end
 
       it { should respond_with :redirect }
@@ -406,17 +408,18 @@ describe PostsController do
 
   describe 'GET #edit' do
     context 'when the user is signed in' do
+      let(:user) { create(:user) }
       before(:each) do
         request.env['HTTP_REFERER'] = root_path
-        sign_in_as create(:user)
+        sign_in_as user
       end
 
       context 'when the post exists' do
         context 'when the user is the author of the post' do
           context 'when the post is published' do
             before(:each) do
-              @post = create(:post, published: true, created_by: @controller.current_user)
-              get :edit, slug: @post.slug
+              @post = create(:post, published: true, created_by: user)
+              get :edit, params: { slug: @post.slug }
             end
 
             it { should respond_with :ok }
@@ -427,8 +430,8 @@ describe PostsController do
 
           context 'when the post has not yet been published' do
             before(:each) do
-              @post = create(:post, published: false, created_by: @controller.current_user)
-              get :edit, slug: @post.slug
+              @post = create(:post, published: false, created_by: user)
+              get :edit, params: { slug: @post.slug }
             end
 
             it { should respond_with :ok }
@@ -440,7 +443,7 @@ describe PostsController do
           context 'when the user is not the author of the post' do
             before(:each) do
               post = create(:post, published: false)
-              get :edit, slug: post.slug
+              get :edit, params: { slug: post.slug }
             end
 
             it { should respond_with :redirect }
@@ -451,7 +454,7 @@ describe PostsController do
       end
 
       context 'when the post does not exist' do
-        before(:each) { get :edit, slug: 'blah' }
+        before(:each) { get :edit, params: { slug: 'blah' } }
 
         it { should respond_with :redirect }
         it { should redirect_to root_path }
@@ -462,7 +465,7 @@ describe PostsController do
     context 'when the user is not signed in' do
       before(:each) do
         post = create(:post, published: false)
-        get :edit, slug: post.slug
+        get :edit, params: { slug: post.slug }
       end
 
       it { should respond_with :redirect }
@@ -473,15 +476,16 @@ describe PostsController do
 
   describe 'PATCH #update' do
     context 'when the user is signed in' do
-      before(:each) { sign_in_as create(:user) }
+      let(:user) { create(:user) }
+      before(:each) { sign_in_as user }
 
       context 'when the post exists' do
         context 'when the user is the author of the post' do
           context 'when the post is already published' do
             context 'when the user attempts to unpublish the post' do
               before(:each) do
-                @post = create(:published_post, created_by: @controller.current_user)
-                patch :update, post: { title: @post.title, body: @post.body }, commit: 'Unpublish', id: @post.id
+                @post = create(:published_post, created_by: user)
+                patch :update, params: { post: { title: @post.title, body: @post.body }, commit: 'Unpublish', id: @post.id }
               end
 
               it { should respond_with :redirect }
@@ -491,8 +495,8 @@ describe PostsController do
 
             context 'when the user attempts to save the post' do
               before(:each) do
-                @post = create(:published_post, created_by: @controller.current_user)
-                patch :update, post: { title: @post.title, body: @post.body }, commit: 'Update', id: @post.id
+                @post = create(:published_post, created_by: user)
+                patch :update, params: { post: { title: @post.title, body: @post.body }, commit: 'Update', id: @post.id }
               end
 
               it { should respond_with :redirect }
@@ -505,9 +509,9 @@ describe PostsController do
             context 'when the user attempts to publish the post' do
               context 'when not entering the title' do
                 before(:each) do
-                  post = create(:post, created_by: @controller.current_user)
+                  post = create(:post, created_by: user)
                   post.title = ''
-                  patch :update, post: { title: post.title, body: post.body }, commit: 'Publish', id: post.id
+                  patch :update, params: { post: { title: post.title, body: post.body }, commit: 'Publish', id: post.id }
                 end
 
                 it { should respond_with :ok }
@@ -520,8 +524,8 @@ describe PostsController do
                 context 'on the same day' do
                   before(:each) do
                     other_post = create(:post)
-                    post = create(:post, created_by: @controller.current_user)
-                    patch :update, post: { title: other_post.title, body: post.body }, commit: 'Publish', id: post.id
+                    post = create(:post, created_by: user)
+                    patch :update, params: { post: { title: other_post.title, body: post.body }, commit: 'Publish', id: post.id }
                   end
 
                   it { should respond_with :ok }
@@ -533,8 +537,8 @@ describe PostsController do
                 context 'not on the same day' do
                   before(:each) do
                     other_post = create(:post, created_at: Faker::Date.between(2.years.ago, Date.yesterday))
-                    post = create(:post, created_by: @controller.current_user)
-                    patch :update, post: { title: other_post.title, body: post.body }, commit: 'Publish', id: post.id
+                    post = create(:post, created_by: user)
+                    patch :update, params: { post: { title: other_post.title, body: post.body }, commit: 'Publish', id: post.id }
                   end
 
                   it { should respond_with :redirect }
@@ -545,8 +549,8 @@ describe PostsController do
 
               context 'when entering a unique title' do
                 before(:each) do
-                  post = create(:post, created_by: @controller.current_user)
-                  patch :update, post: { title: Faker::Lorem.sentence, body: post.body }, commit: 'Publish', id: post.id
+                  post = create(:post, created_by: user)
+                  patch :update, params: { post: { title: Faker::Lorem.sentence, body: post.body }, commit: 'Publish', id: post.id }
                 end
 
                 it { should respond_with :redirect }
@@ -556,9 +560,9 @@ describe PostsController do
 
               context 'when checking a category' do
                 before(:each) do
-                  categories = create_list(:category, 5, created_by: @controller.current_user)
-                  @post = create(:post, created_by: @controller.current_user)
-                  patch :update, post: { title: @post.title, body: @post.body, category_ids: [categories[2].id] }, commit: 'Publish', id: @post.id
+                  categories = create_list(:category, 5, created_by: user)
+                  @post = create(:post, created_by: user)
+                  patch :update, params: { post: { title: @post.title, body: @post.body, category_ids: [categories[2].id] }, commit: 'Publish', id: @post.id }
                 end
 
                 it { should respond_with :redirect }
@@ -569,9 +573,9 @@ describe PostsController do
 
               context 'when checking multiple categories' do
                 before(:each) do
-                  @post = create(:post, created_by: @controller.current_user)
-                  categories = create_list(:category, 5, created_by: @controller.current_user)
-                  patch :update, post: { title: @post.title, body: @post.body, category_ids: [categories[2].id, categories[4].id] }, commit: 'Publish', id: @post.id
+                  @post = create(:post, created_by: user)
+                  categories = create_list(:category, 5, created_by: user)
+                  patch :update, params: { post: { title: @post.title, body: @post.body, category_ids: [categories[2].id, categories[4].id] }, commit: 'Publish', id: @post.id }
                 end
 
                 it { should respond_with :redirect }
@@ -582,8 +586,8 @@ describe PostsController do
 
               context 'when unchecking one or more categories' do
                 before(:each) do
-                  @post = create(:post_with_categories, created_by: @controller.current_user)
-                  patch :update, post: { title: @post.title, body: @post.body, category_ids: [@post.categories[1].id] }, commit: 'Publish', id: @post.id
+                  @post = create(:post_with_categories, created_by: user)
+                  patch :update, params: { post: { title: @post.title, body: @post.body, category_ids: [@post.categories[1].id] }, commit: 'Publish', id: @post.id }
                 end
 
                 it { should respond_with :redirect }
@@ -596,9 +600,9 @@ describe PostsController do
             context 'when the user attempts to save the post' do
               context 'when not entering the title' do
                 before(:each) do
-                  post = create(:post, created_by: @controller.current_user)
+                  post = create(:post, created_by: user)
                   post.title = ''
-                  patch :update, post: { title: post.title, body: post.body }, commit: 'Update', id: post.id
+                  patch :update, params: { post: { title: post.title, body: post.body }, commit: 'Update', id: post.id }
                 end
 
                 it { should respond_with :ok }
@@ -611,8 +615,8 @@ describe PostsController do
                 context 'on the same day' do
                   before(:each) do
                     other_post = create(:post)
-                    post = create(:post, created_by: @controller.current_user)
-                    patch :update, post: { title: other_post.title, body: post.body }, commit: 'Update', id: post.id
+                    post = create(:post, created_by: user)
+                    patch :update, params: { post: { title: other_post.title, body: post.body }, commit: 'Update', id: post.id }
                   end
 
                   it { should respond_with :ok }
@@ -624,8 +628,8 @@ describe PostsController do
                 context 'not on the same day' do
                   before(:each) do
                     other_post = create(:post, created_at: Faker::Date.between(2.years.ago, Date.yesterday))
-                    post = create(:post, created_by: @controller.current_user)
-                    patch :update, post: { title: other_post.title, body: post.body }, commit: 'Update', id: post.id
+                    post = create(:post, created_by: user)
+                    patch :update, params: { post: { title: other_post.title, body: post.body }, commit: 'Update', id: post.id }
                   end
 
                   it { should respond_with :redirect }
@@ -636,8 +640,8 @@ describe PostsController do
 
               context 'when entering a unique title' do
                 before(:each) do
-                  post = create(:post, created_by: @controller.current_user)
-                  patch :update, post: { title: Faker::Lorem.sentence, body: post.body }, commit: 'Update', id: post.id
+                  post = create(:post, created_by: user)
+                  patch :update, params: { post: { title: Faker::Lorem.sentence, body: post.body }, commit: 'Update', id: post.id }
                 end
 
                 it { should respond_with :redirect }
@@ -647,9 +651,9 @@ describe PostsController do
 
               context 'when checking a category' do
                 before(:each) do
-                  categories = create_list(:category, 5, created_by: @controller.current_user)
-                  @post = create(:post, created_by: @controller.current_user)
-                  patch :update, post: { title: @post.title, body: @post.body, category_ids: [categories[2].id] }, commit: 'Update', id: @post.id
+                  categories = create_list(:category, 5, created_by: user)
+                  @post = create(:post, created_by: user)
+                  patch :update, params: { post: { title: @post.title, body: @post.body, category_ids: [categories[2].id] }, commit: 'Update', id: @post.id }
                 end
 
                 it { should respond_with :redirect }
@@ -660,9 +664,9 @@ describe PostsController do
 
               context 'when checking multiple categories' do
                 before(:each) do
-                  @post = create(:post, created_by: @controller.current_user)
-                  categories = create_list(:category, 5, created_by: @controller.current_user)
-                  patch :update, post: { title: @post.title, body: @post.body, category_ids: [categories[2].id, categories[4].id] }, commit: 'Update', id: @post.id
+                  @post = create(:post, created_by: user)
+                  categories = create_list(:category, 5, created_by: user)
+                  patch :update, params: { post: { title: @post.title, body: @post.body, category_ids: [categories[2].id, categories[4].id] }, commit: 'Update', id: @post.id }
                 end
 
                 it { should respond_with :redirect }
@@ -673,8 +677,8 @@ describe PostsController do
 
               context 'when unchecking one or more categories' do
                 before(:each) do
-                  @post = create(:post_with_categories, created_by: @controller.current_user)
-                  patch :update, post: { title: @post.title, body: @post.body, category_ids: [@post.categories[1].id] }, commit: 'Update', id: @post.id
+                  @post = create(:post_with_categories, created_by: user)
+                  patch :update, params: { post: { title: @post.title, body: @post.body, category_ids: [@post.categories[1].id] }, commit: 'Update', id: @post.id }
                 end
 
                 it { should respond_with :redirect }
@@ -689,7 +693,7 @@ describe PostsController do
         context 'when the user is not the author of the post' do
           before(:each) do
             request.env['HTTP_REFERER'] = root_path
-            patch :update, id: create(:post).id
+            patch :update, params: { id: create(:post).id }
           end
 
           it { should respond_with :redirect }
@@ -699,7 +703,7 @@ describe PostsController do
       end
 
       context 'when the post does not exist' do
-        before(:each) { patch :update, id: 9389893 }
+        before(:each) { patch :update, params: { id: 9389893 } }
 
         it { should respond_with :redirect }
         it { should redirect_to root_path }
@@ -711,7 +715,7 @@ describe PostsController do
     context 'when the user is not signed in' do
       before(:each) do
         post = create(:post, published: false)
-        patch :update, id: post.id
+        patch :update, params: { id: post.id }
       end
 
       it { should respond_with :redirect }
@@ -722,12 +726,13 @@ describe PostsController do
 
   describe 'DELETE #destroy' do
     context 'when the user is signed in' do
-      before(:each) { sign_in_as create(:user) }
+      let(:user) { create(:user) }
+      before(:each) { sign_in_as user }
 
       context 'when the user is the author of the post' do
         before(:each) do
-          post = create(:post, created_by: @controller.current_user)
-          delete :destroy, id: post.id
+          post = create(:post, created_by: user)
+          delete :destroy, params: { id: post.id }
         end
 
         it { should respond_with :redirect }
@@ -739,7 +744,7 @@ describe PostsController do
         before(:each) do
           request.env['HTTP_REFERER'] = root_path
           post = create(:post)
-          delete :destroy, id: post.id
+          delete :destroy, params: { id: post.id }
         end
 
         it { should respond_with :redirect }
@@ -751,7 +756,7 @@ describe PostsController do
     context 'when the user is not signed in' do
       before(:each) do
         post = create(:post, published: false)
-        delete :destroy, id: post.id
+        delete :destroy, params: { id: post.id }
       end
 
       it { should respond_with :redirect }

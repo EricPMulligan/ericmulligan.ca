@@ -1,5 +1,7 @@
 <%= provide :title, "Edit Category (#{@category.name})" %>
 
 <div class="edit-category">
-  <%= render partial: 'categories/partials/form', locals: { category: @category, id: 'edit-category' } %>
+  <%= form_for @category, url: category_path(@category.slug), html: { id: 'edit-category' } do |f| %>
+    <%= render partial: 'categories/partials/form', locals: { f: f, id: 'edit-category' } %>
+  <% end %>
 </div>

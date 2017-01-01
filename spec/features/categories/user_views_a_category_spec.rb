@@ -1,9 +1,9 @@
 require 'rails_helper'
 
-feature 'User views a category', sign_in: true do
+feature 'User views a category', sign_in: true, type: :feature do
   scenario 'As a user, I should be able to view one of my categories' do
     category = create(:category, created_by: @current_user)
-    visit category_path(category)
+    visit category_path(category.slug)
 
     expect(page).to have_content category.name
     expect(page).to have_content category.description
@@ -11,7 +11,7 @@ feature 'User views a category', sign_in: true do
 
   scenario 'As a user, I should be able to see all categories' do
     category = create(:category)
-    visit category_path(category)
+    visit category_path(category.slug)
 
     expect(page).to have_content category.name
     expect(page).to have_content category.description

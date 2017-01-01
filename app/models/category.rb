@@ -4,7 +4,7 @@ class Category < ApplicationRecord
   belongs_to :created_by, class_name: 'User'
 
   has_many :categories_posts
-  has_many :posts, through: :categories_posts
+  has_many :posts, ->{ order(created_at: :desc) }, through: :categories_posts
 
   validates :name,       presence: true
   validates :created_by, presence: true
