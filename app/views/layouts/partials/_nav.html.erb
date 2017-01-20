@@ -13,6 +13,7 @@
     <div class="collapse navbar-collapse" id="nav">
       <ul class="nav navbar-nav navbar-right">
         <li class="<%= current_page?(controller: '/static_pages', action: 'about') ? 'active' : '' %>"><%= link_to 'About Me', about_path %></li>
+        <li><a href="http://cv.ericmulligan.ca" target="_blank">My CV</a></li>
         <li class="<%= current_page?(controller: '/contact', action: 'index') ? 'active' : '' %>"><%= link_to 'Contact Me', contact_path %></li>
         <% if signed_in? -%>
           <li class="dropdown">
